@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ import { Building2, Plus, Search, TrendingUp, TrendingDown, CreditCard, Wallet, 
 const Banking = () => {
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [isReconciliationDialogOpen, setIsReconciliationDialogOpen] = useState(false);
+  const [isStatementsDialogOpen, setIsStatementsDialogOpen] = useState(false);
   
   const [accountData, setAccountData] = useState({
     bankName: "",
@@ -318,14 +321,111 @@ const Banking = () => {
                 <ArrowDownLeft className="h-4 w-4 mr-2 text-red-600" />
                 Record Withdrawal
               </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <CreditCard className="h-4 w-4 mr-2" />
-                Bank Reconciliation
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Building2 className="h-4 w-4 mr-2" />
-                View Statements
-              </Button>
+              
+              <Dialog open={isReconciliationDialogOpen} onOpenChange={setIsReconciliationDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full justify-start" variant="outline">
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Bank Reconciliation
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>Bank Reconciliation</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Select Bank Account</label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select account" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hdfc">HDFC Bank - Current</SelectItem>
+                            <SelectItem value="icici">ICICI Bank - Savings</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Statement Period</label>
+                        <Input type="date" />
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <h4 className="font-medium mb-2">Unmatched Transactions</h4>
+                      <div className="border rounded p-4 bg-gray-50">
+                        <p className="text-sm text-gray-600">No unmatched transactions found.</p>
+                      </div>
+                    </div>
+                    <Button className="w-full">Start Reconciliation</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog open={isStatementsDialogOpen} onOpenChange={setIsStatementsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    View Statements
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl">
+                  <DialogHeader>
+                    <DialogTitle>Bank Statements</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-sm font-medium">Select Account</label>
+                        <Select>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select account" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="hdfc">HDFC Bank - Current</SelectItem>
+                            <SelectItem value="icici">ICICI Bank - Savings</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">From Date</label>
+                        <Input type="date" />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">To Date</label>
+                        <Input type="date" />
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left p-4">Date</th>
+                            <th className="text-left p-4">Description</th>
+                            <th className="text-right p-4">Debit</th>
+                            <th className="text-right p-4">Credit</th>
+                            <th className="text-right p-4">Balance</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr className="border-b hover:bg-gray-50">
+                            <td className="p-4">2024-01-15</td>
+                            <td className="p-4">Customer Payment</td>
+                            <td className="p-4 text-right">-</td>
+                            <td className="p-4 text-right">₹45,000</td>
+                            <td className="p-4 text-right">₹8,45,670</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button>Generate Statement</Button>
+                      <Button variant="outline">Export PDF</Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Dialog, 
   DialogContent, 
@@ -33,10 +34,74 @@ const GeneralLedger = () => {
     }
   };
 
-  const handleViewDetails = (category: string) => {
-    setSelectedCategory(category);
-    setIsDetailsDialogOpen(true);
-  };
+  const assetsData = [
+    { name: "Cash in Hand", code: "1001", balance: "₹50,000", type: "Current Asset" },
+    { name: "Bank Account", code: "1002", balance: "₹2,50,000", type: "Current Asset" },
+    { name: "Accounts Receivable", code: "1101", balance: "₹1,20,000", type: "Current Asset" },
+    { name: "Equipment", code: "1501", balance: "₹5,00,000", type: "Fixed Asset" }
+  ];
+
+  const liabilitiesData = [
+    { name: "Accounts Payable", code: "2001", balance: "₹75,000", type: "Current Liability" },
+    { name: "Bank Loan", code: "2501", balance: "₹3,00,000", type: "Long-term Liability" },
+    { name: "Accrued Expenses", code: "2101", balance: "₹25,000", type: "Current Liability" }
+  ];
+
+  const equityData = [
+    { name: "Owner's Capital", code: "3001", balance: "₹5,00,000", type: "Equity" },
+    { name: "Retained Earnings", code: "3101", balance: "₹2,22,220", type: "Equity" }
+  ];
+
+  const revenueData = [
+    { name: "Sales Revenue", code: "4001", balance: "₹8,45,670", type: "Revenue" },
+    { name: "Service Revenue", code: "4101", balance: "₹4,00,000", type: "Revenue" }
+  ];
+
+  const expensesData = [
+    { name: "Office Rent", code: "5001", balance: "₹60,000", type: "Operating Expense" },
+    { name: "Utilities", code: "5101", balance: "₹15,000", type: "Operating Expense" },
+    { name: "Salaries", code: "5201", balance: "₹3,00,000", type: "Operating Expense" }
+  ];
+
+  const trialBalanceData = [
+    ...assetsData.map(item => ({ ...item, debit: item.balance, credit: "-" })),
+    ...liabilitiesData.map(item => ({ ...item, debit: "-", credit: item.balance })),
+    ...equityData.map(item => ({ ...item, debit: "-", credit: item.balance })),
+    ...revenueData.map(item => ({ ...item, debit: "-", credit: item.balance })),
+    ...expensesData.map(item => ({ ...item, debit: item.balance, credit: "-" }))
+  ];
+
+  const AccountTable = ({ data, title }) => (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">{title}</h3>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b">
+              <th className="text-left p-4">Account Name</th>
+              <th className="text-left p-4">Code</th>
+              <th className="text-left p-4">Type</th>
+              <th className="text-right p-4">Balance</th>
+              <th className="text-left p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((account, index) => (
+              <tr key={index} className="border-b hover:bg-gray-50">
+                <td className="p-4">{account.name}</td>
+                <td className="p-4">{account.code}</td>
+                <td className="p-4">{account.type}</td>
+                <td className="p-4 text-right font-semibold">{account.balance}</td>
+                <td className="p-4">
+                  <Button variant="outline" size="sm">View Ledger</Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
@@ -190,115 +255,70 @@ const GeneralLedger = () => {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Assets</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-2">Current and fixed assets</p>
-                <p className="text-xl font-bold text-green-600">₹15,67,890</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => handleViewDetails("Assets")}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Liabilities</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-2">Current and long-term liabilities</p>
-                <p className="text-xl font-bold text-red-600">₹8,45,670</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => handleViewDetails("Liabilities")}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Equity</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-2">Owner's equity and retained earnings</p>
-                <p className="text-xl font-bold text-blue-600">₹7,22,220</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => handleViewDetails("Equity")}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Revenue</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-2">Income and revenue accounts</p>
-                <p className="text-xl font-bold text-green-600">₹12,45,670</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => handleViewDetails("Revenue")}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Expenses</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-2">Operating and other expenses</p>
-                <p className="text-xl font-bold text-orange-600">₹9,99,780</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => handleViewDetails("Expenses")}
-                >
-                  View Details
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-lg">Trial Balance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600 text-sm mb-2">Complete trial balance report</p>
-                <p className="text-sm text-gray-500">Last updated today</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => console.log("Generating trial balance report...")}
-                >
-                  Generate Report
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          <Tabs defaultValue="assets" className="w-full">
+            <TabsList className="grid w-full grid-cols-6">
+              <TabsTrigger value="assets">Assets</TabsTrigger>
+              <TabsTrigger value="liabilities">Liabilities</TabsTrigger>
+              <TabsTrigger value="equity">Equity</TabsTrigger>
+              <TabsTrigger value="revenue">Revenue</TabsTrigger>
+              <TabsTrigger value="expenses">Expenses</TabsTrigger>
+              <TabsTrigger value="trial-balance">Trial Balance</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="assets" className="mt-6">
+              <AccountTable data={assetsData} title="Assets" />
+            </TabsContent>
+            
+            <TabsContent value="liabilities" className="mt-6">
+              <AccountTable data={liabilitiesData} title="Liabilities" />
+            </TabsContent>
+            
+            <TabsContent value="equity" className="mt-6">
+              <AccountTable data={equityData} title="Equity" />
+            </TabsContent>
+            
+            <TabsContent value="revenue" className="mt-6">
+              <AccountTable data={revenueData} title="Revenue" />
+            </TabsContent>
+            
+            <TabsContent value="expenses" className="mt-6">
+              <AccountTable data={expensesData} title="Expenses" />
+            </TabsContent>
+            
+            <TabsContent value="trial-balance" className="mt-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Trial Balance</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-4">Account Name</th>
+                        <th className="text-left p-4">Code</th>
+                        <th className="text-right p-4">Debit</th>
+                        <th className="text-right p-4">Credit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {trialBalanceData.map((account, index) => (
+                        <tr key={index} className="border-b hover:bg-gray-50">
+                          <td className="p-4">{account.name}</td>
+                          <td className="p-4">{account.code}</td>
+                          <td className="p-4 text-right">{account.debit}</td>
+                          <td className="p-4 text-right">{account.credit}</td>
+                        </tr>
+                      ))}
+                      <tr className="border-t-2 border-gray-900 font-bold">
+                        <td className="p-4">Total</td>
+                        <td className="p-4"></td>
+                        <td className="p-4 text-right">₹15,67,890</td>
+                        <td className="p-4 text-right">₹15,67,890</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
