@@ -1,18 +1,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { pie-chart, calendar } from "lucide-react";
+import { PieChart, Calendar } from "lucide-react";
 
 const Reports = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <pie-chart className="h-8 w-8" />
+          <PieChart className="h-8 w-8" />
           Reports & Analytics
         </h1>
         <Button variant="outline">
-          <calendar className="h-4 w-4 mr-2" />
+          <Calendar className="h-4 w-4 mr-2" />
           Custom Date Range
         </Button>
       </div>
