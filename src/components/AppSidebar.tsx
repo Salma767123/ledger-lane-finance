@@ -21,6 +21,7 @@ import {
   Activity, 
   Archive, 
   Book, 
+  Building2,
   Calendar, 
   ChartBar, 
   Clipboard, 
@@ -81,6 +82,11 @@ const menuItems = [
     ],
   },
   {
+    title: "Banking",
+    url: "/banking",
+    icon: Building2,
+  },
+  {
     title: "Tax",
     url: "/tax",
     icon: Receipt,
@@ -101,10 +107,12 @@ export function AppSidebar() {
   const location = useLocation();
 
   return (
-    <Sidebar className="border-r">
+    <Sidebar className="border-r shadow-sm">
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-lg font-semibold text-blue-600 px-4 py-2">
+            Navigation
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
@@ -112,7 +120,7 @@ export function AppSidebar() {
                   {item.items ? (
                     <Collapsible className="group/collapsible">
                       <CollapsibleTrigger asChild>
-                        <SidebarMenuButton className="w-full">
+                        <SidebarMenuButton className="w-full hover:bg-blue-50 transition-colors">
                           <item.icon className="h-4 w-4" />
                           <span>{item.title}</span>
                         </SidebarMenuButton>
@@ -124,7 +132,11 @@ export function AppSidebar() {
                               <SidebarMenuSubButton asChild>
                                 <Link 
                                   to={subItem.url}
-                                  className={location.pathname === subItem.url ? "bg-accent" : ""}
+                                  className={`transition-colors ${
+                                    location.pathname === subItem.url 
+                                      ? "bg-blue-100 text-blue-700 font-medium" 
+                                      : "hover:bg-gray-50"
+                                  }`}
                                 >
                                   <span>{subItem.title}</span>
                                 </Link>
@@ -138,7 +150,11 @@ export function AppSidebar() {
                     <SidebarMenuButton asChild>
                       <Link 
                         to={item.url!}
-                        className={location.pathname === item.url ? "bg-accent" : ""}
+                        className={`transition-colors ${
+                          location.pathname === item.url 
+                            ? "bg-blue-100 text-blue-700 font-medium" 
+                            : "hover:bg-blue-50"
+                        }`}
                       >
                         <item.icon className="h-4 w-4" />
                         <span>{item.title}</span>

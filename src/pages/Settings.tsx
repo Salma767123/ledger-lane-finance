@@ -1,124 +1,107 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { settings, users, database, tag } from "lucide-react";
+import { Settings, Users, Database, Tag, Building, Shield, Bell, Palette } from "lucide-react";
 
-const Settings = () => {
+const SettingsPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <settings className="h-8 w-8" />
+          <Settings className="h-8 w-8 text-gray-600" />
           Settings
         </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <users className="h-5 w-5" />
+              <Building className="h-5 w-5 text-blue-600" />
               Company Information
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Configure company details, logo, and contact information.</p>
-            <div className="mt-4">
-              <Button variant="outline">Edit Company Info</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Configure company details, logo, and contact information.</p>
+            <Button variant="outline" className="w-full">Edit Company Info</Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <users className="h-5 w-5" />
+              <Users className="h-5 w-5 text-green-600" />
               User Management
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Manage user accounts, roles, and permissions.</p>
-            <div className="mt-4">
-              <Button variant="outline">Manage Users</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Manage user accounts, roles, and permissions.</p>
+            <Button variant="outline" className="w-full">Manage Users</Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <tag className="h-5 w-5" />
+              <Tag className="h-5 w-5 text-purple-600" />
               Tax Configuration
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Set up tax rates, GST settings, and tax preferences.</p>
-            <div className="mt-4">
-              <Button variant="outline">Configure Taxes</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Set up tax rates, GST settings, and tax preferences.</p>
+            <Button variant="outline" className="w-full">Configure Taxes</Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <database className="h-5 w-5" />
+              <Database className="h-5 w-5 text-orange-600" />
               Data Management
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Backup, restore, and manage your accounting data.</p>
-            <div className="mt-4">
-              <Button variant="outline">Data Settings</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Backup, restore, and manage your accounting data.</p>
+            <Button variant="outline" className="w-full">Data Settings</Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Payment Gateway</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-red-600" />
+              Security Settings
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Configure payment methods and gateway settings.</p>
-            <div className="mt-4">
-              <Button variant="outline">Payment Settings</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Configure security preferences and access controls.</p>
+            <Button variant="outline" className="w-full">Security Settings</Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Email Templates</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-yellow-600" />
+              Notifications
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Customize email templates for invoices and notifications.</p>
-            <div className="mt-4">
-              <Button variant="outline">Edit Templates</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Manage email and system notifications.</p>
+            <Button variant="outline" className="w-full">Notification Settings</Button>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle>Number Formats</CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-5 w-5 text-indigo-600" />
+              Appearance
+            </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-gray-600">Configure invoice, estimate, and order numbering.</p>
-            <div className="mt-4">
-              <Button variant="outline">Number Settings</Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Integration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">Connect with third-party applications and services.</p>
-            <div className="mt-4">
-              <Button variant="outline">Manage Integrations</Button>
-            </div>
+            <p className="text-gray-600 mb-4">Customize themes, colors, and display preferences.</p>
+            <Button variant="outline" className="w-full">Appearance Settings</Button>
           </CardContent>
         </Card>
       </div>
@@ -126,4 +109,4 @@ const Settings = () => {
   );
 };
 
-export default Settings;
+export default SettingsPage;

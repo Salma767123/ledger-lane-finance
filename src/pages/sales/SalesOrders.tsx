@@ -1,18 +1,18 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { clipboard, plus } from "lucide-react";
+import { Clipboard, Plus } from "lucide-react";
 
 const SalesOrders = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <clipboard className="h-8 w-8" />
+          <Clipboard className="h-8 w-8" />
           Sales Orders
         </h1>
         <Button>
-          <plus className="h-4 w-4 mr-2" />
+          <Plus className="h-4 w-4 mr-2" />
           Create Order
         </Button>
       </div>

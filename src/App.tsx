@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,6 +30,7 @@ import Tax from "./pages/Tax";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import Banking from "./pages/Banking";
 
 const queryClient = new QueryClient();
 
@@ -44,7 +44,7 @@ const App = () => (
           <div className="min-h-screen flex w-full bg-gray-50">
             <AppSidebar />
             <main className="flex-1 flex flex-col">
-              <header className="border-b bg-white px-6 py-4">
+              <header className="border-b bg-white px-6 py-4 shadow-sm">
                 <div className="flex items-center gap-4">
                   <SidebarTrigger />
                   <h1 className="text-xl font-semibold text-gray-900">Accounting Software</h1>
@@ -70,6 +70,7 @@ const App = () => (
                   <Route path="/purchase/debit-notes" element={<DebitNotes />} />
                   <Route path="/accounting/general-ledger" element={<GeneralLedger />} />
                   <Route path="/accounting/journal-entries" element={<JournalEntries />} />
+                  <Route path="/banking" element={<Banking />} />
                   <Route path="/tax" element={<Tax />} />
                   <Route path="/reports" element={<Reports />} />
                   <Route path="/settings" element={<Settings />} />
