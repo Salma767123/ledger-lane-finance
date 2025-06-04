@@ -12,12 +12,30 @@ import {
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Plus, Search, TrendingUp, TrendingDown, CreditCard, Wallet, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Banking = () => {
+  const { toast } = useToast();
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
   const [isReconciliationDialogOpen, setIsReconciliationDialogOpen] = useState(false);
   const [isStatementsDialogOpen, setIsStatementsDialogOpen] = useState(false);
+  
+  const [bankAccounts, setBankAccounts] = useState([
+    { id: 1, bankName: "HDFC Bank", accountType: "Current", accountNumber: "****5678", balance: 845670 },
+    { id: 2, bankName: "ICICI Bank", accountType: "Savings", accountNumber: "****1234", balance: 400220 }
+  ]);
+
+  const [transactions, setTransactions] = useState([
+    { id: 1, date: "2024-01-15", description: "Payment from Customer ABC", account: "HDFC Bank", type: "Credit", amount: 45000, status: "Completed" },
+    { id: 2, date: "2024-01-14", description: "Office Rent Payment", account: "ICICI Bank", type: "Debit", amount: 25000, status: "Completed" },
+    { id: 3, date: "2024-01-13", description: "Utility Bill Payment", account: "HDFC Bank", type: "Debit", amount: 5000, status: "Pending" }
+  ]);
+
+  const [reconciliationData, setReconciliationData] = useState([
+    { id: 1, date: "2024-01-15", description: "Unmatched Deposit", amount: 10000, status: "Unmatched" },
+    { id: 2, date: "2024-01-14", description: "Bank Charge", amount: 500, status: "Unmatched" }
+  ]);
   
   const [accountData, setAccountData] = useState({
     bankName: "",
@@ -34,20 +52,123 @@ const Banking = () => {
     date: ""
   });
 
+  const [reconciliationForm, setReconciliationForm] = useState({
+    account: "",
+    statementDate: "",
+    statementBalance: ""
+  });
+
+  const [statementForm, setStatementForm] = useState({
+    account: "",
+    fromDate: "",
+    toDate: ""
+  });
+
   const handleAddAccount = () => {
     if (accountData.bankName && accountData.accountType && accountData.accountNumber) {
-      console.log("Adding bank account:", accountData);
+      const newAccount = {
+        id: bankAccounts.length + 1,
+        bankName: accountData.bankName,
+        accountType: accountData.accountType,
+        accountNumber: accountData.accountNumber,
+        balance: parseFloat(accountData.balance) || 0
+      };
+      setBankAccounts([...bankAccounts, newAccount]);
       setAccountData({ bankName: "", accountType: "", accountNumber: "", balance: "" });
       setIsAccountDialogOpen(false);
+      toast({
+        title: "Account Added",
+        description: `${accountData.bankName} account has been added successfully.`
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
     }
   };
 
   const handleRecordTransaction = () => {
     if (transactionData.account && transactionData.type && transactionData.amount) {
-      console.log("Recording transaction:", transactionData);
+      const newTransaction = {
+        id: transactions.length + 1,
+        date: transactionData.date || new Date().toISOString().split('T')[0],
+        description: transactionData.description || `${transactionData.type} transaction`,
+        account: transactionData.account,
+        type: transactionData.type === "credit" ? "Credit" : "Debit",
+        amount: parseFloat(transactionData.amount),
+        status: "Completed"
+      };
+
+      // Update account balance
+      const accountIndex = bankAccounts.findIndex(acc => acc.bankName === transactionData.account);
+      if (accountIndex !== -1) {
+        const updatedAccounts = [...bankAccounts];
+        if (transactionData.type === "credit") {
+          updatedAccounts[accountIndex].balance += parseFloat(transactionData.amount);
+        } else {
+          updatedAccounts[accountIndex].balance -= parseFloat(transactionData.amount);
+        }
+        setBankAccounts(updatedAccounts);
+      }
+
+      setTransactions([newTransaction, ...transactions]);
       setTransactionData({ account: "", type: "", amount: "", description: "", date: "" });
       setIsTransactionDialogOpen(false);
+      toast({
+        title: "Transaction Recorded",
+        description: `${newTransaction.type} of ₹${newTransaction.amount} has been recorded.`
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
     }
+  };
+
+  const handleReconciliation = () => {
+    if (reconciliationForm.account && reconciliationForm.statementDate) {
+      toast({
+        title: "Reconciliation Started",
+        description: `Bank reconciliation for ${reconciliationForm.account} has been initiated.`
+      });
+      setReconciliationForm({ account: "", statementDate: "", statementBalance: "" });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please select account and statement date.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleGenerateStatement = () => {
+    if (statementForm.account && statementForm.fromDate && statementForm.toDate) {
+      toast({
+        title: "Statement Generated",
+        description: `Bank statement for ${statementForm.account} from ${statementForm.fromDate} to ${statementForm.toDate} has been generated.`
+      });
+      setStatementForm({ account: "", fromDate: "", toDate: "" });
+    } else {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleQuickDeposit = () => {
+    setTransactionData({...transactionData, type: "credit"});
+    setIsTransactionDialogOpen(true);
+  };
+
+  const handleQuickWithdrawal = () => {
+    setTransactionData({...transactionData, type: "debit"});
+    setIsTransactionDialogOpen(true);
   };
 
   return (
@@ -85,9 +206,9 @@ const Banking = () => {
                       <SelectValue placeholder="Select account type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="savings">Savings</SelectItem>
-                      <SelectItem value="current">Current</SelectItem>
-                      <SelectItem value="fixed">Fixed Deposit</SelectItem>
+                      <SelectItem value="Savings">Savings</SelectItem>
+                      <SelectItem value="Current">Current</SelectItem>
+                      <SelectItem value="Fixed">Fixed Deposit</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -139,8 +260,11 @@ const Banking = () => {
                       <SelectValue placeholder="Select account" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="hdfc">HDFC Bank - Current</SelectItem>
-                      <SelectItem value="icici">ICICI Bank - Savings</SelectItem>
+                      {bankAccounts.map((account) => (
+                        <SelectItem key={account.id} value={account.bankName}>
+                          {account.bankName} - {account.accountType}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -202,7 +326,7 @@ const Banking = () => {
               <Wallet className="h-8 w-8 text-green-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Balance</p>
-                <p className="text-2xl font-bold text-gray-900">₹12,45,890</p>
+                <p className="text-2xl font-bold text-gray-900">₹{bankAccounts.reduce((sum, acc) => sum + acc.balance, 0).toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -214,7 +338,7 @@ const Banking = () => {
               <TrendingUp className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Inflow</p>
-                <p className="text-2xl font-bold text-gray-900">₹8,45,670</p>
+                <p className="text-2xl font-bold text-gray-900">₹{transactions.filter(t => t.type === 'Credit').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -226,7 +350,7 @@ const Banking = () => {
               <TrendingDown className="h-8 w-8 text-red-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Outflow</p>
-                <p className="text-2xl font-bold text-gray-900">₹5,67,890</p>
+                <p className="text-2xl font-bold text-gray-900">₹{transactions.filter(t => t.type === 'Debit').reduce((sum, t) => sum + t.amount, 0).toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
@@ -238,7 +362,7 @@ const Banking = () => {
               <CreditCard className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Pending Transactions</p>
-                <p className="text-2xl font-bold text-gray-900">7</p>
+                <p className="text-2xl font-bold text-gray-900">{transactions.filter(t => t.status === 'Pending').length}</p>
               </div>
             </div>
           </CardContent>
@@ -259,35 +383,22 @@ const Banking = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <Card className="border border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">HDFC Bank - Current</h3>
-                        <p className="text-sm text-gray-600">Account: ****5678</p>
+                {bankAccounts.map((account) => (
+                  <Card key={account.id} className="border border-gray-200">
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h3 className="font-semibold">{account.bankName} - {account.accountType}</h3>
+                          <p className="text-sm text-gray-600">Account: {account.accountNumber}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-green-600">₹{account.balance.toLocaleString()}</p>
+                          <p className="text-sm text-gray-600">Available Balance</p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xl font-bold text-green-600">₹8,45,670</p>
-                        <p className="text-sm text-gray-600">Available Balance</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">ICICI Bank - Savings</h3>
-                        <p className="text-sm text-gray-600">Account: ****1234</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xl font-bold text-green-600">₹4,00,220</p>
-                        <p className="text-sm text-gray-600">Available Balance</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </CardContent>
           </Card>
@@ -302,10 +413,7 @@ const Banking = () => {
               <Button 
                 className="w-full justify-start" 
                 variant="outline"
-                onClick={() => {
-                  setTransactionData({...transactionData, type: "credit"});
-                  setIsTransactionDialogOpen(true);
-                }}
+                onClick={handleQuickDeposit}
               >
                 <ArrowUpRight className="h-4 w-4 mr-2 text-green-600" />
                 Record Deposit
@@ -313,10 +421,7 @@ const Banking = () => {
               <Button 
                 className="w-full justify-start" 
                 variant="outline"
-                onClick={() => {
-                  setTransactionData({...transactionData, type: "debit"});
-                  setIsTransactionDialogOpen(true);
-                }}
+                onClick={handleQuickWithdrawal}
               >
                 <ArrowDownLeft className="h-4 w-4 mr-2 text-red-600" />
                 Record Withdrawal
@@ -334,31 +439,64 @@ const Banking = () => {
                     <DialogTitle>Bank Reconciliation</DialogTitle>
                   </DialogHeader>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       <div>
                         <label className="text-sm font-medium">Select Bank Account</label>
-                        <Select>
+                        <Select value={reconciliationForm.account} onValueChange={(value) => setReconciliationForm({...reconciliationForm, account: value})}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select account" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="hdfc">HDFC Bank - Current</SelectItem>
-                            <SelectItem value="icici">ICICI Bank - Savings</SelectItem>
+                            {bankAccounts.map((account) => (
+                              <SelectItem key={account.id} value={account.bankName}>
+                                {account.bankName} - {account.accountType}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
-                        <label className="text-sm font-medium">Statement Period</label>
-                        <Input type="date" />
+                        <label className="text-sm font-medium">Statement Date</label>
+                        <Input 
+                          type="date" 
+                          value={reconciliationForm.statementDate}
+                          onChange={(e) => setReconciliationForm({...reconciliationForm, statementDate: e.target.value})}
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium">Statement Balance</label>
+                        <Input 
+                          type="number" 
+                          placeholder="Enter balance"
+                          value={reconciliationForm.statementBalance}
+                          onChange={(e) => setReconciliationForm({...reconciliationForm, statementBalance: e.target.value})}
+                        />
                       </div>
                     </div>
                     <div className="mt-4">
                       <h4 className="font-medium mb-2">Unmatched Transactions</h4>
-                      <div className="border rounded p-4 bg-gray-50">
-                        <p className="text-sm text-gray-600">No unmatched transactions found.</p>
+                      <div className="border rounded p-4 bg-gray-50 max-h-64 overflow-y-auto">
+                        {reconciliationData.length > 0 ? (
+                          <div className="space-y-2">
+                            {reconciliationData.map((item) => (
+                              <div key={item.id} className="flex justify-between items-center p-2 bg-white rounded border">
+                                <div>
+                                  <p className="font-medium">{item.description}</p>
+                                  <p className="text-sm text-gray-600">{item.date}</p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="font-medium">₹{item.amount.toLocaleString()}</p>
+                                  <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded">{item.status}</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-gray-600">No unmatched transactions found.</p>
+                        )}
                       </div>
                     </div>
-                    <Button className="w-full">Start Reconciliation</Button>
+                    <Button onClick={handleReconciliation} className="w-full">Start Reconciliation</Button>
                   </div>
                 </DialogContent>
               </Dialog>
@@ -378,23 +516,34 @@ const Banking = () => {
                     <div className="grid grid-cols-3 gap-4">
                       <div>
                         <label className="text-sm font-medium">Select Account</label>
-                        <Select>
+                        <Select value={statementForm.account} onValueChange={(value) => setStatementForm({...statementForm, account: value})}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select account" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="hdfc">HDFC Bank - Current</SelectItem>
-                            <SelectItem value="icici">ICICI Bank - Savings</SelectItem>
+                            {bankAccounts.map((account) => (
+                              <SelectItem key={account.id} value={account.bankName}>
+                                {account.bankName} - {account.accountType}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
                         <label className="text-sm font-medium">From Date</label>
-                        <Input type="date" />
+                        <Input 
+                          type="date" 
+                          value={statementForm.fromDate}
+                          onChange={(e) => setStatementForm({...statementForm, fromDate: e.target.value})}
+                        />
                       </div>
                       <div>
                         <label className="text-sm font-medium">To Date</label>
-                        <Input type="date" />
+                        <Input 
+                          type="date" 
+                          value={statementForm.toDate}
+                          onChange={(e) => setStatementForm({...statementForm, toDate: e.target.value})}
+                        />
                       </div>
                     </div>
                     <div className="overflow-x-auto">
@@ -409,18 +558,22 @@ const Banking = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          <tr className="border-b hover:bg-gray-50">
-                            <td className="p-4">2024-01-15</td>
-                            <td className="p-4">Customer Payment</td>
-                            <td className="p-4 text-right">-</td>
-                            <td className="p-4 text-right">₹45,000</td>
-                            <td className="p-4 text-right">₹8,45,670</td>
-                          </tr>
+                          {transactions
+                            .filter(t => statementForm.account ? t.account === statementForm.account : true)
+                            .map((transaction) => (
+                            <tr key={transaction.id} className="border-b hover:bg-gray-50">
+                              <td className="p-4">{transaction.date}</td>
+                              <td className="p-4">{transaction.description}</td>
+                              <td className="p-4 text-right">{transaction.type === 'Debit' ? `₹${transaction.amount.toLocaleString()}` : '-'}</td>
+                              <td className="p-4 text-right">{transaction.type === 'Credit' ? `₹${transaction.amount.toLocaleString()}` : '-'}</td>
+                              <td className="p-4 text-right">₹{transaction.amount.toLocaleString()}</td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
                     <div className="flex gap-2">
-                      <Button>Generate Statement</Button>
+                      <Button onClick={handleGenerateStatement}>Generate Statement</Button>
                       <Button variant="outline">Export PDF</Button>
                     </div>
                   </div>
@@ -458,36 +611,27 @@ const Banking = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b hover:bg-gray-50">
-                  <td className="p-4">2024-01-15</td>
-                  <td className="p-4">Payment from Customer ABC</td>
-                  <td className="p-4">HDFC Bank</td>
-                  <td className="p-4">
-                    <span className="flex items-center text-green-600">
-                      <ArrowUpRight className="h-4 w-4 mr-1" />
-                      Credit
-                    </span>
-                  </td>
-                  <td className="p-4 text-right font-semibold text-green-600">+₹45,000</td>
-                  <td className="p-4">
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Completed</span>
-                  </td>
-                </tr>
-                <tr className="border-b hover:bg-gray-50">
-                  <td className="p-4">2024-01-14</td>
-                  <td className="p-4">Office Rent Payment</td>
-                  <td className="p-4">ICICI Bank</td>
-                  <td className="p-4">
-                    <span className="flex items-center text-red-600">
-                      <ArrowDownLeft className="h-4 w-4 mr-1" />
-                      Debit
-                    </span>
-                  </td>
-                  <td className="p-4 text-right font-semibold text-red-600">-₹25,000</td>
-                  <td className="p-4">
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Completed</span>
-                  </td>
-                </tr>
+                {transactions.map((transaction) => (
+                  <tr key={transaction.id} className="border-b hover:bg-gray-50">
+                    <td className="p-4">{transaction.date}</td>
+                    <td className="p-4">{transaction.description}</td>
+                    <td className="p-4">{transaction.account}</td>
+                    <td className="p-4">
+                      <span className={`flex items-center ${transaction.type === 'Credit' ? 'text-green-600' : 'text-red-600'}`}>
+                        {transaction.type === 'Credit' ? <ArrowUpRight className="h-4 w-4 mr-1" /> : <ArrowDownLeft className="h-4 w-4 mr-1" />}
+                        {transaction.type}
+                      </span>
+                    </td>
+                    <td className={`p-4 text-right font-semibold ${transaction.type === 'Credit' ? 'text-green-600' : 'text-red-600'}`}>
+                      {transaction.type === 'Credit' ? '+' : '-'}₹{transaction.amount.toLocaleString()}
+                    </td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${transaction.status === 'Completed' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {transaction.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
