@@ -1,10 +1,52 @@
-
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, Plus, Search, TrendingUp, TrendingDown, CreditCard, Wallet, ArrowUpRight, ArrowDownLeft } from "lucide-react";
 
 const Banking = () => {
+  const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  
+  const [accountData, setAccountData] = useState({
+    bankName: "",
+    accountType: "",
+    accountNumber: "",
+    balance: ""
+  });
+
+  const [transactionData, setTransactionData] = useState({
+    account: "",
+    type: "",
+    amount: "",
+    description: "",
+    date: ""
+  });
+
+  const handleAddAccount = () => {
+    if (accountData.bankName && accountData.accountType && accountData.accountNumber) {
+      console.log("Adding bank account:", accountData);
+      setAccountData({ bankName: "", accountType: "", accountNumber: "", balance: "" });
+      setIsAccountDialogOpen(false);
+    }
+  };
+
+  const handleRecordTransaction = () => {
+    if (transactionData.account && transactionData.type && transactionData.amount) {
+      console.log("Recording transaction:", transactionData);
+      setTransactionData({ account: "", type: "", amount: "", description: "", date: "" });
+      setIsTransactionDialogOpen(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -13,14 +55,140 @@ const Banking = () => {
           Banking
         </h1>
         <div className="flex gap-2">
-          <Button variant="outline">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Bank Account
-          </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700">
-            <Plus className="h-4 w-4 mr-2" />
-            Record Transaction
-          </Button>
+          <Dialog open={isAccountDialogOpen} onOpenChange={setIsAccountDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Plus className="h-4 w-4 mr-2" />
+                Add Bank Account
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add Bank Account</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Bank Name *</label>
+                  <Input 
+                    value={accountData.bankName}
+                    onChange={(e) => setAccountData({...accountData, bankName: e.target.value})}
+                    placeholder="Enter bank name"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Account Type *</label>
+                  <Select value={accountData.accountType} onValueChange={(value) => setAccountData({...accountData, accountType: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select account type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="savings">Savings</SelectItem>
+                      <SelectItem value="current">Current</SelectItem>
+                      <SelectItem value="fixed">Fixed Deposit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Account Number *</label>
+                  <Input 
+                    value={accountData.accountNumber}
+                    onChange={(e) => setAccountData({...accountData, accountNumber: e.target.value})}
+                    placeholder="Enter account number"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Initial Balance</label>
+                  <Input 
+                    type="number"
+                    value={accountData.balance}
+                    onChange={(e) => setAccountData({...accountData, balance: e.target.value})}
+                    placeholder="Enter initial balance"
+                  />
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={handleAddAccount} className="flex-1">
+                    Add Account
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsAccountDialogOpen(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700">
+                <Plus className="h-4 w-4 mr-2" />
+                Record Transaction
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Record Transaction</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium">Account *</label>
+                  <Select value={transactionData.account} onValueChange={(value) => setTransactionData({...transactionData, account: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select account" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hdfc">HDFC Bank - Current</SelectItem>
+                      <SelectItem value="icici">ICICI Bank - Savings</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Transaction Type *</label>
+                  <Select value={transactionData.type} onValueChange={(value) => setTransactionData({...transactionData, type: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="credit">Credit (Deposit)</SelectItem>
+                      <SelectItem value="debit">Debit (Withdrawal)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Amount *</label>
+                  <Input 
+                    type="number"
+                    value={transactionData.amount}
+                    onChange={(e) => setTransactionData({...transactionData, amount: e.target.value})}
+                    placeholder="Enter amount"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Description</label>
+                  <Input 
+                    value={transactionData.description}
+                    onChange={(e) => setTransactionData({...transactionData, description: e.target.value})}
+                    placeholder="Enter description"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium">Date</label>
+                  <Input 
+                    type="date"
+                    value={transactionData.date}
+                    onChange={(e) => setTransactionData({...transactionData, date: e.target.value})}
+                  />
+                </div>
+                <div className="flex gap-2 pt-4">
+                  <Button onClick={handleRecordTransaction} className="flex-1">
+                    Record Transaction
+                  </Button>
+                  <Button variant="outline" onClick={() => setIsTransactionDialogOpen(false)} className="flex-1">
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -80,7 +248,7 @@ const Banking = () => {
             <CardHeader>
               <div className="flex justify-between items-center">
                 <CardTitle>Bank Accounts</CardTitle>
-                <Button variant="outline" size="sm">
+                <Button variant="outline" size="sm" onClick={() => setIsAccountDialogOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Account
                 </Button>
@@ -128,11 +296,25 @@ const Banking = () => {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full justify-start" variant="outline">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => {
+                  setTransactionData({...transactionData, type: "credit"});
+                  setIsTransactionDialogOpen(true);
+                }}
+              >
                 <ArrowUpRight className="h-4 w-4 mr-2 text-green-600" />
                 Record Deposit
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button 
+                className="w-full justify-start" 
+                variant="outline"
+                onClick={() => {
+                  setTransactionData({...transactionData, type: "debit"});
+                  setIsTransactionDialogOpen(true);
+                }}
+              >
                 <ArrowDownLeft className="h-4 w-4 mr-2 text-red-600" />
                 Record Withdrawal
               </Button>
