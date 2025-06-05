@@ -5,11 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Package, DollarSign } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Package, DollarSign, Eye, Edit, Trash2, Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const VendorDetail = () => {
   const { vendorId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isTransactionDialogOpen, setIsTransactionDialogOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   
   // Sample vendor data - in real app, fetch by vendorId
   const vendor = {
@@ -34,12 +39,25 @@ const VendorDetail = () => {
     { id: 4, orderNo: "PO-012", date: "2023-12-28", amount: 15000, status: "Delivered", items: 1 }
   ];
 
-  const transactionHistory = [
-    { id: 1, date: "2024-01-16", type: "Payment", description: "Payment for PO-001", amount: -45000, balance: 0 },
-    { id: 2, date: "2024-01-15", type: "Purchase", description: "Purchase Order PO-001", amount: 45000, balance: 45000 },
-    { id: 3, date: "2024-01-11", type: "Payment", description: "Payment for PO-005", amount: -32000, balance: 0 },
-    { id: 4, date: "2024-01-10", type: "Purchase", description: "Purchase Order PO-005", amount: 32000, balance: 32000 }
-  ];
+  const [transactionHistory, setTransactionHistory] = useState([
+    { id: 1, date: "2024-01-16", type: "Payment", description: "Payment for PO-001", amount: -45000, balance: 0, reference: "PAY-001" },
+    { id: 2, date: "2024-01-15", type: "Purchase", description: "Purchase Order PO-001", amount: 45000, balance: 45000, reference: "PO-001" },
+    { id: 3, date: "2024-01-11", type: "Payment", description: "Payment for PO-005", amount: -32000, balance: 0, reference: "PAY-002" },
+    { id: 4, date: "2024-01-10", type: "Purchase", description: "Purchase Order PO-005", amount: 32000, balance: 32000, reference: "PO-005" }
+  ]);
+
+  const handleViewTransaction = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsTransactionDialogOpen(true);
+  };
+
+  const handleDeleteTransaction = (transactionId) => {
+    setTransactionHistory(transactionHistory.filter(t => t.id !== transactionId));
+    toast({
+      title: "Transaction Deleted",
+      description: "Transaction has been deleted successfully."
+    });
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -48,6 +66,10 @@ const VendorDetail = () => {
       case 'Approved': return 'bg-blue-100 text-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const getTransactionTypeColor = (type) => {
+    return type === 'Payment' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800';
   };
 
   return (
@@ -177,7 +199,13 @@ const VendorDetail = () => {
         <TabsContent value="orders">
           <Card>
             <CardHeader>
-              <CardTitle>Purchase Order History</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Purchase Order History</CardTitle>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Order
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -204,9 +232,14 @@ const VendorDetail = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" title="View Details">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" title="Edit">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -219,7 +252,16 @@ const VendorDetail = () => {
         <TabsContent value="transactions">
           <Card>
             <CardHeader>
-              <CardTitle>Transaction History</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Transaction History</CardTitle>
+                <div className="flex gap-2">
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Payment
+                  </Button>
+                  <Button variant="outline">Export</Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -227,9 +269,11 @@ const VendorDetail = () => {
                   <TableRow>
                     <TableHead>Date</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Reference</TableHead>
                     <TableHead>Description</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Balance</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -237,15 +281,29 @@ const VendorDetail = () => {
                     <TableRow key={transaction.id}>
                       <TableCell>{transaction.date}</TableCell>
                       <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs ${transaction.type === 'Payment' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                        <span className={`px-2 py-1 rounded-full text-xs ${getTransactionTypeColor(transaction.type)}`}>
                           {transaction.type}
                         </span>
                       </TableCell>
+                      <TableCell className="font-medium">{transaction.reference}</TableCell>
                       <TableCell>{transaction.description}</TableCell>
                       <TableCell className={transaction.amount < 0 ? 'text-red-600' : 'text-green-600'}>
                         {transaction.amount < 0 ? '-' : '+'}₹{Math.abs(transaction.amount).toLocaleString()}
                       </TableCell>
                       <TableCell>₹{transaction.balance.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={() => handleViewTransaction(transaction)} title="View Details">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" title="Edit">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDeleteTransaction(transaction.id)} title="Delete">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -254,6 +312,50 @@ const VendorDetail = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Transaction Details Dialog */}
+      <Dialog open={isTransactionDialogOpen} onOpenChange={setIsTransactionDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Transaction Details</DialogTitle>
+          </DialogHeader>
+          {selectedTransaction && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Reference</label>
+                  <p className="text-lg font-semibold">{selectedTransaction.reference}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Type</label>
+                  <span className={`px-2 py-1 rounded-full text-xs ${getTransactionTypeColor(selectedTransaction.type)}`}>
+                    {selectedTransaction.type}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Date</label>
+                  <p>{selectedTransaction.date}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Amount</label>
+                  <p className={`text-lg font-semibold ${selectedTransaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {selectedTransaction.amount < 0 ? '-' : '+'}₹{Math.abs(selectedTransaction.amount).toLocaleString()}
+                  </p>
+                </div>
+                <div className="col-span-2">
+                  <label className="text-sm font-medium text-gray-600">Description</label>
+                  <p>{selectedTransaction.description}</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button variant="outline">Edit Transaction</Button>
+                <Button variant="outline">Print Receipt</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
