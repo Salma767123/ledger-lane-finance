@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,16 @@ const SalesOrders = () => {
     if (orderForm.customer && orderForm.date && orderForm.items.some(item => item.product)) {
       const { subtotal, tax, total } = calculateTotals();
       
+      // Convert string inputs to numbers for items
+      const processedItems = orderForm.items
+        .filter(item => item.product)
+        .map(item => ({
+          product: item.product,
+          quantity: parseFloat(item.quantity) || 0,
+          rate: parseFloat(item.rate) || 0,
+          amount: parseFloat(item.quantity || 0) * parseFloat(item.rate || 0)
+        }));
+      
       const newOrder = {
         id: salesOrders.length + 1,
         orderNo: `SO-${String(salesOrders.length + 1).padStart(3, '0')}`,
@@ -83,7 +94,7 @@ const SalesOrders = () => {
         tax: tax,
         total: total,
         status: "Draft",
-        items: orderForm.items.filter(item => item.product)
+        items: processedItems
       };
       
       setSalesOrders([...salesOrders, newOrder]);
@@ -120,7 +131,12 @@ const SalesOrders = () => {
       date: order.date,
       dueDate: order.dueDate,
       taxRate: "18",
-      items: order.items || [{ product: "", quantity: "", rate: "", amount: 0 }]
+      items: order.items?.map(item => ({
+        product: item.product,
+        quantity: item.quantity.toString(),
+        rate: item.rate.toString(),
+        amount: item.amount
+      })) || [{ product: "", quantity: "", rate: "", amount: 0 }]
     });
     setIsEditDialogOpen(true);
   };
@@ -128,6 +144,16 @@ const SalesOrders = () => {
   const handleUpdateOrder = () => {
     if (selectedOrder && orderForm.customer && orderForm.date) {
       const { subtotal, tax, total } = calculateTotals();
+      
+      // Convert string inputs to numbers for items
+      const processedItems = orderForm.items
+        .filter(item => item.product)
+        .map(item => ({
+          product: item.product,
+          quantity: parseFloat(item.quantity) || 0,
+          rate: parseFloat(item.rate) || 0,
+          amount: parseFloat(item.quantity || 0) * parseFloat(item.rate || 0)
+        }));
       
       const updatedOrder = {
         ...selectedOrder,
@@ -137,7 +163,7 @@ const SalesOrders = () => {
         amount: subtotal,
         tax: tax,
         total: total,
-        items: orderForm.items.filter(item => item.product)
+        items: processedItems
       };
       
       setSalesOrders(salesOrders.map(order => 
