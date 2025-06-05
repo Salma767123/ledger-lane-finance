@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import Dashboard from "./pages/Dashboard";
 import Inventory from "./pages/Inventory";
 import Customers from "./pages/sales/Customers";
+import CustomerDetail from "./pages/sales/CustomerDetail";
 import Estimates from "./pages/sales/Estimates";
 import SalesOrders from "./pages/sales/SalesOrders";
 import Challans from "./pages/sales/Challans";
@@ -18,6 +20,7 @@ import Invoices from "./pages/sales/Invoices";
 import Payments from "./pages/sales/Payments";
 import CreditNotes from "./pages/sales/CreditNotes";
 import Vendors from "./pages/purchase/Vendors";
+import VendorDetail from "./pages/purchase/VendorDetail";
 import PurchaseOrders from "./pages/purchase/PurchaseOrders";
 import Bills from "./pages/purchase/Bills";
 import TransactionHistory from "./pages/purchase/TransactionHistory";
@@ -55,6 +58,7 @@ const App = () => (
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/inventory" element={<Inventory />} />
                   <Route path="/sales/customers" element={<Customers />} />
+                  <Route path="/sales/customers/:customerId" element={<CustomerDetail />} />
                   <Route path="/sales/estimates" element={<Estimates />} />
                   <Route path="/sales/orders" element={<SalesOrders />} />
                   <Route path="/sales/challans" element={<Challans />} />
@@ -62,6 +66,7 @@ const App = () => (
                   <Route path="/sales/payments" element={<Payments />} />
                   <Route path="/sales/credit-notes" element={<CreditNotes />} />
                   <Route path="/purchase/vendors" element={<Vendors />} />
+                  <Route path="/purchase/vendors/:vendorId" element={<VendorDetail />} />
                   <Route path="/purchase/orders" element={<PurchaseOrders />} />
                   <Route path="/purchase/bills" element={<Bills />} />
                   <Route path="/purchase/transactions" element={<TransactionHistory />} />

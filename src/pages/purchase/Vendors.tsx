@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Users, Plus, Search, Eye, Edit, Trash2, Phone, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 const Vendors = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [selectedVendor, setSelectedVendor] = useState(null);
@@ -54,8 +55,7 @@ const Vendors = () => {
   };
 
   const handleViewVendor = (vendor) => {
-    setSelectedVendor(vendor);
-    setIsViewDialogOpen(true);
+    navigate(`/purchase/vendors/${vendor.id}`);
   };
 
   const handleDeleteVendor = (vendorId) => {
