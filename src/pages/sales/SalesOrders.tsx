@@ -1,5 +1,3 @@
-
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Clipboard, Plus, Search, Eye, Edit, Trash2, Download, Send } from "lucide-react";
+import { Clipboard, Plus, Search, Eye, Edit, Trash2, Download, Send, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const SalesOrders = () => {
@@ -75,7 +73,6 @@ const SalesOrders = () => {
     if (orderForm.customer && orderForm.date && orderForm.items.some(item => item.product)) {
       const { subtotal, tax, total } = calculateTotals();
       
-      // Convert string inputs to numbers for items
       const processedItems = orderForm.items
         .filter(item => item.product)
         .map(item => ({
@@ -146,7 +143,6 @@ const SalesOrders = () => {
     if (selectedOrder && orderForm.customer && orderForm.date) {
       const { subtotal, tax, total } = calculateTotals();
       
-      // Convert string inputs to numbers for items
       const processedItems = orderForm.items
         .filter(item => item.product)
         .map(item => ({
@@ -330,7 +326,7 @@ const SalesOrders = () => {
                           size="sm"
                           disabled={orderForm.items.length === 1}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
@@ -417,19 +413,19 @@ const SalesOrders = () => {
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-1">
-                      <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)}>
+                      <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)} title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEditOrder(order)}>
+                      <Button variant="outline" size="sm" onClick={() => handleEditOrder(order)} title="Edit">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" title="Download">
                         <Download className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm">
+                      <Button variant="outline" size="sm" title="Send">
                         <Send className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)}>
+                      <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)} title="Delete">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
@@ -441,60 +437,79 @@ const SalesOrders = () => {
         </CardContent>
       </Card>
 
-      {/* View Order Dialog */}
+      {/* View Order Dialog - Invoice Format */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Sales Order Details</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4">
+              {/* Invoice Header */}
+              <div className="border-b pb-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold">SALES ORDER</h2>
+                    <p className="text-lg font-semibold text-blue-600">{selectedOrder.orderNo}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(selectedOrder.status)}`}>
+                      {selectedOrder.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer and Order Info */}
+              <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Order Number</label>
-                  <p className="text-lg font-semibold">{selectedOrder.orderNo}</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">Bill To</h3>
+                  <div className="space-y-1">
+                    <p className="font-medium">{selectedOrder.customer}</p>
+                    <p>Customer Address Line 1</p>
+                    <p>Customer Address Line 2</p>
+                    <p>Phone: +91 9876543210</p>
+                    <p>Email: customer@example.com</p>
+                  </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Status</label>
-                  <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(selectedOrder.status)}`}>
-                    {selectedOrder.status}
-                  </span>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Customer</label>
-                  <p>{selectedOrder.customer}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Order Date</label>
-                  <p>{selectedOrder.date}</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">Order Details</h3>
+                  <div className="space-y-1">
+                    <p><span className="font-medium">Order Date:</span> {selectedOrder.date}</p>
+                    <p><span className="font-medium">Due Date:</span> {selectedOrder.dueDate}</p>
+                    <p><span className="font-medium">Order No:</span> {selectedOrder.orderNo}</p>
+                    <p><span className="font-medium">Status:</span> {selectedOrder.status}</p>
+                  </div>
                 </div>
               </div>
               
+              {/* Items Table */}
               <div>
-                <h4 className="font-medium mb-2">Order Items</h4>
+                <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Rate</TableHead>
-                      <TableHead>Amount</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead>Item</TableHead>
+                      <TableHead className="text-center">Quantity</TableHead>
+                      <TableHead className="text-right">Rate</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {selectedOrder.items?.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell>{item.product}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>₹{item.rate}</TableCell>
-                        <TableCell>₹{item.amount?.toLocaleString()}</TableCell>
+                        <TableCell className="font-medium">{item.product}</TableCell>
+                        <TableCell className="text-center">{item.quantity}</TableCell>
+                        <TableCell className="text-right">₹{item.rate.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">₹{item.amount.toLocaleString()}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
-              
-              <div className="flex justify-end">
+
+              {/* Totals */}
+              <div className="flex justify-end border-t pt-4">
                 <div className="w-64 space-y-2">
                   <div className="flex justify-between">
                     <span>Subtotal:</span>
@@ -512,9 +527,17 @@ const SalesOrders = () => {
               </div>
               
               <div className="flex gap-2 pt-4">
-                <Button>Confirm Order</Button>
-                <Button variant="outline">Download PDF</Button>
-                <Button variant="outline">Send to Customer</Button>
+                <Button>
+                  Confirm Order
+                </Button>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button variant="outline">
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to Customer
+                </Button>
               </div>
             </div>
           )}
@@ -593,4 +616,3 @@ const SalesOrders = () => {
 };
 
 export default SalesOrders;
-
