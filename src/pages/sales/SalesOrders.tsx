@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ const SalesOrders = () => {
   });
 
   const calculateItemAmount = (quantity, rate) => {
-    return parseFloat(quantity || 0) * parseFloat(rate || 0);
+    return parseFloat(quantity || "0") * parseFloat(rate || "0");
   };
 
   const calculateTotals = () => {
@@ -79,9 +80,9 @@ const SalesOrders = () => {
         .filter(item => item.product)
         .map(item => ({
           product: item.product,
-          quantity: parseFloat(item.quantity) || 0,
-          rate: parseFloat(item.rate) || 0,
-          amount: parseFloat(item.quantity || 0) * parseFloat(item.rate || 0)
+          quantity: parseFloat(String(item.quantity || "0")),
+          rate: parseFloat(String(item.rate || "0")),
+          amount: parseFloat(String(item.quantity || "0")) * parseFloat(String(item.rate || "0"))
         }));
       
       const newOrder = {
@@ -150,9 +151,9 @@ const SalesOrders = () => {
         .filter(item => item.product)
         .map(item => ({
           product: item.product,
-          quantity: parseFloat(item.quantity) || 0,
-          rate: parseFloat(item.rate) || 0,
-          amount: parseFloat(item.quantity || 0) * parseFloat(item.rate || 0)
+          quantity: parseFloat(String(item.quantity || "0")),
+          rate: parseFloat(String(item.rate || "0")),
+          amount: parseFloat(String(item.quantity || "0")) * parseFloat(String(item.rate || "0"))
         }));
       
       const updatedOrder = {
@@ -592,3 +593,4 @@ const SalesOrders = () => {
 };
 
 export default SalesOrders;
+
