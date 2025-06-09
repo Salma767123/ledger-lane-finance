@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Clipboard, Plus, Search, Eye, Edit, Trash2, X, RefreshCw, Check, Clock, Truck } from "lucide-react";
+import { Clipboard, Plus, Search, Eye, Edit, Trash2, X, RefreshCw, Check, Clock, Truck, Download, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PurchaseOrders = () => {
@@ -96,14 +95,14 @@ const PurchaseOrders = () => {
         .map(item => ({
           product: item.product,
           account: item.account,
-          quantity: parseFloat(String(item.quantity || "0")),
-          rate: parseFloat(String(item.rate || "0")),
-          amount: parseFloat(String(item.quantity || "0")) * parseFloat(String(item.rate || "0"))
+          quantity: parseFloat(item.quantity || "0"),
+          rate: parseFloat(item.rate || "0"),
+          amount: parseFloat(item.quantity || "0") * parseFloat(item.rate || "0")
         }));
       
       const newOrder = {
         id: purchaseOrders.length + 1,
-        orderNo: orderForm.orderNo || `PO-${String(purchaseOrders.length + 1).padStart(3, '0')}`,
+        orderNo: orderForm.orderNo || `PO-${(purchaseOrders.length + 1).toString().padStart(3, '0')}`,
         vendor: orderForm.vendor,
         date: orderForm.date,
         totalAmount: subtotal,
@@ -163,9 +162,9 @@ const PurchaseOrders = () => {
         .map(item => ({
           product: item.product,
           account: item.account,
-          quantity: parseFloat(String(item.quantity || "0")),
-          rate: parseFloat(String(item.rate || "0")),
-          amount: parseFloat(String(item.quantity || "0")) * parseFloat(String(item.rate || "0"))
+          quantity: parseFloat(item.quantity || "0"),
+          rate: parseFloat(item.rate || "0"),
+          amount: parseFloat(item.quantity || "0") * parseFloat(item.rate || "0")
         }));
       
       const updatedOrder = {
@@ -181,6 +180,8 @@ const PurchaseOrders = () => {
         order.id === selectedOrder.id ? updatedOrder : order
       ));
       setIsEditDialogOpen(false);
+      setSelectedOrder(null);
+      resetForm();
       toast({
         title: "Purchase Order Updated",
         description: `Order ${selectedOrder.orderNo} has been updated successfully.`
@@ -204,6 +205,31 @@ const PurchaseOrders = () => {
       title: "Status Updated",
       description: `Order status changed to ${newStatus}.`
     });
+  };
+
+  const handleDownloadOrder = (order) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading PDF for order ${order.orderNo}`
+    });
+  };
+
+  const handleSendOrder = (order) => {
+    toast({
+      title: "Order Sent",
+      description: `Order ${order.orderNo} has been sent to vendor`
+    });
+  };
+
+  const handlePrintOrder = (order) => {
+    toast({
+      title: "Print Started",
+      description: `Printing order ${order.orderNo}`
+    });
+  };
+
+  const handleApproveOrder = (order) => {
+    handleStatusChange(order.id, "Approved");
   };
 
   const getStatusColor = (status) => {
@@ -625,7 +651,7 @@ const PurchaseOrders = () => {
               </div>
               
               <div className="flex gap-2 pt-4">
-                <Button onClick={() => handleStatusChange(selectedOrder.id, "Approved")}>
+                <Button onClick={() => handleApproveOrder(selectedOrder)}>
                   Approve Order
                 </Button>
                 <Button variant="outline" onClick={() => {
@@ -634,8 +660,16 @@ const PurchaseOrders = () => {
                 }}>
                   Edit Order
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => handlePrintOrder(selectedOrder)}>
                   Print Order
+                </Button>
+                <Button variant="outline" onClick={() => handleDownloadOrder(selectedOrder)}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button variant="outline" onClick={() => handleSendOrder(selectedOrder)}>
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to Vendor
                 </Button>
               </div>
             </div>
@@ -650,7 +684,7 @@ const PurchaseOrders = () => {
             <DialogTitle>Edit Purchase Order</DialogTitle>
           </DialogHeader>
           <div className="space-y-6">
-            {/* Same form structure as create dialog */}
+            {/* Vendor Selection */}
             <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-medium text-red-500">Vendor Name*</label>
@@ -673,6 +707,121 @@ const PurchaseOrders = () => {
                   onChange={(e) => setOrderForm({...orderForm, orderNo: e.target.value})}
                   placeholder="PO-0000"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-red-500">Date*</label>
+              <Input 
+                type="date"
+                value={orderForm.date}
+                onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
+              />
+            </div>
+
+            {/* Item Table */}
+            <div>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-lg font-semibold">Item Table</h3>
+                <Button onClick={addItem} variant="outline" size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Row
+                </Button>
+              </div>
+              
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-[30%]">ITEM DETAILS</TableHead>
+                      <TableHead className="w-[20%]">ACCOUNT</TableHead>
+                      <TableHead className="w-[12%]">QUANTITY</TableHead>
+                      <TableHead className="w-[12%]">RATE</TableHead>
+                      <TableHead className="w-[12%]">AMOUNT</TableHead>
+                      <TableHead className="w-[14%]">ACTION</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {orderForm.items.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <Input 
+                            value={item.product}
+                            onChange={(e) => updateItem(index, 'product', e.target.value)}
+                            placeholder="Type or click to select an item."
+                            className="border-0 focus:ring-0"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Select 
+                            value={item.account} 
+                            onValueChange={(value) => updateItem(index, 'account', value)}
+                          >
+                            <SelectTrigger className="border-0 focus:ring-0">
+                              <SelectValue placeholder="Select an account" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Inventory">Inventory</SelectItem>
+                              <SelectItem value="Office Supplies">Office Supplies</SelectItem>
+                              <SelectItem value="Equipment">Equipment</SelectItem>
+                              <SelectItem value="Software">Software</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Input 
+                            type="number"
+                            value={item.quantity}
+                            onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                            placeholder="1.00"
+                            className="border-0 focus:ring-0"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input 
+                            type="number"
+                            value={item.rate}
+                            onChange={(e) => updateItem(index, 'rate', e.target.value)}
+                            placeholder="0.00"
+                            className="border-0 focus:ring-0"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-lg font-semibold">
+                            ₹{item.amount?.toFixed(2) || '0.00'}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button 
+                            onClick={() => removeItem(index)}
+                            variant="ghost" 
+                            size="sm"
+                            disabled={orderForm.items.length === 1}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+
+            {/* Order Summary */}
+            <div className="border-t pt-4">
+              <div className="flex justify-end">
+                <div className="w-64 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Sub Total:</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg border-t pt-2">
+                    <span>Total:</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
+                  </div>
+                </div>
               </div>
             </div>
 

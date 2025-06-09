@@ -38,12 +38,12 @@ const VendorDetail = () => {
     totalValue: 850000
   };
 
-  const orderHistory = [
+  const [orderHistory, setOrderHistory] = useState([
     { id: 1, orderNo: "PO-001", date: "2024-01-15", amount: 45000, status: "Delivered", items: [{ product: "Product A", quantity: 10, rate: 4500, amount: 45000 }] },
     { id: 2, orderNo: "PO-005", date: "2024-01-10", amount: 32000, status: "Pending", items: [{ product: "Product B", quantity: 8, rate: 4000, amount: 32000 }] },
     { id: 3, orderNo: "PO-008", date: "2024-01-05", amount: 28000, status: "Approved", items: [{ product: "Product C", quantity: 5, rate: 5600, amount: 28000 }] },
     { id: 4, orderNo: "PO-012", date: "2023-12-28", amount: 15000, status: "Delivered", items: [{ product: "Product D", quantity: 3, rate: 5000, amount: 15000 }] }
-  ];
+  ]);
 
   const [transactionHistory, setTransactionHistory] = useState([
     { id: 1, date: "2024-01-16", type: "Payment", description: "Payment for PO-001", amount: -45000, balance: 0, reference: "PAY-001" },
@@ -72,6 +72,39 @@ const VendorDetail = () => {
   const handleEditOrder = (order) => {
     setSelectedOrder(order);
     setIsEditDialogOpen(true);
+    toast({
+      title: "Edit Order",
+      description: `Editing order ${order.orderNo}`
+    });
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    setOrderHistory(orderHistory.filter(order => order.id !== orderId));
+    toast({
+      title: "Order Deleted",
+      description: "Purchase order has been deleted successfully."
+    });
+  };
+
+  const handleDownloadOrder = (order) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading PDF for order ${order.orderNo}`
+    });
+  };
+
+  const handleSendOrder = (order) => {
+    toast({
+      title: "Order Sent",
+      description: `Order ${order.orderNo} has been sent to vendor`
+    });
+  };
+
+  const handlePrintOrder = (order) => {
+    toast({
+      title: "Print Started",
+      description: `Printing order ${order.orderNo}`
+    });
   };
 
   const handleDeleteTransaction = (transactionId) => {
@@ -79,6 +112,20 @@ const VendorDetail = () => {
     toast({
       title: "Transaction Deleted",
       description: "Transaction has been deleted successfully."
+    });
+  };
+
+  const handleEditTransaction = (transaction) => {
+    toast({
+      title: "Edit Transaction",
+      description: `Editing transaction ${transaction.reference}`
+    });
+  };
+
+  const handleDownloadTransaction = (transaction) => {
+    toast({
+      title: "Download Started",
+      description: `Downloading receipt for ${transaction.reference}`
     });
   };
 
@@ -286,8 +333,11 @@ const VendorDetail = () => {
                           <Button variant="outline" size="sm" onClick={() => handleEditOrder(order)} title="Edit">
                             <Edit className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm" title="Download">
+                          <Button variant="outline" size="sm" onClick={() => handleDownloadOrder(order)} title="Download">
                             <Download className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)} title="Delete">
+                            <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                       </TableCell>
@@ -349,8 +399,11 @@ const VendorDetail = () => {
                           <Button variant="outline" size="sm" onClick={() => handleViewTransaction(transaction)} title="View Details">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button variant="outline" size="sm" title="Edit">
+                          <Button variant="outline" size="sm" onClick={() => handleEditTransaction(transaction)} title="Edit">
                             <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDownloadTransaction(transaction)} title="Download">
+                            <Download className="h-4 w-4" />
                           </Button>
                           <Button variant="outline" size="sm" onClick={() => handleDeleteTransaction(transaction.id)} title="Delete">
                             <Trash2 className="h-4 w-4" />
@@ -447,16 +500,22 @@ const VendorDetail = () => {
               </div>
               
               <div className="flex gap-2 pt-4">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => handleDownloadOrder(selectedOrder)}>
                   <Download className="h-4 w-4 mr-2" />
                   Download PDF
                 </Button>
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => handleSendOrder(selectedOrder)}>
                   <Send className="h-4 w-4 mr-2" />
                   Send to Vendor
                 </Button>
-                <Button>
+                <Button onClick={() => {
+                  setIsOrderDialogOpen(false);
+                  handleEditOrder(selectedOrder);
+                }}>
                   Edit Order
+                </Button>
+                <Button variant="outline" onClick={() => handlePrintOrder(selectedOrder)}>
+                  Print Order
                 </Button>
               </div>
             </div>
@@ -529,11 +588,13 @@ const VendorDetail = () => {
               </div>
               
               <div className="flex gap-2 pt-4">
-                <Button variant="outline">
+                <Button variant="outline" onClick={() => handleDownloadTransaction(selectedTransaction)}>
                   <Download className="h-4 w-4 mr-2" />
                   Download Receipt
                 </Button>
-                <Button variant="outline">Edit Transaction</Button>
+                <Button variant="outline" onClick={() => handleEditTransaction(selectedTransaction)}>
+                  Edit Transaction
+                </Button>
               </div>
             </div>
           )}
