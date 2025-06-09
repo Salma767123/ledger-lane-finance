@@ -109,7 +109,7 @@ const SalesOrders = () => {
       
       const newOrder = {
         id: salesOrders.length + 1,
-        orderNo: orderForm.orderNo || `SO-${String(salesOrders.length + 1).padStart(3, '0')}`,
+        orderNo: orderForm.orderNo || `SO-${(salesOrders.length + 1).toString().padStart(3, '0')}`,
         customer: orderForm.customer,
         date: orderForm.date,
         dueDate: orderForm.expectedShipment || orderForm.date,
