@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,10 +18,10 @@ const PurchaseOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   
   const [purchaseOrders, setPurchaseOrders] = useState([
-    { id: 1, orderNo: "PO-001", vendor: "Tech Supplies Ltd", date: "2024-01-15", totalAmount: 45000, status: "Pending", items: [{ product: "Product A", account: "Inventory", quantity: 10, rate: 4500, amount: 45000 }] },
-    { id: 2, orderNo: "PO-002", vendor: "Office Equipment Co", date: "2024-01-16", totalAmount: 32000, status: "Approved", items: [{ product: "Product B", account: "Inventory", quantity: 8, rate: 4000, amount: 32000 }] },
-    { id: 3, orderNo: "PO-003", vendor: "Software Solutions", date: "2024-01-17", totalAmount: 25000, status: "Delivered", items: [{ product: "Product C", account: "Office Supplies", quantity: 5, rate: 5000, amount: 25000 }] },
-    { id: 4, orderNo: "PO-004", vendor: "Furniture World", date: "2024-01-18", totalAmount: 65000, status: "Pending", items: [{ product: "Product D", account: "Equipment", quantity: 13, rate: 5000, amount: 65000 }] }
+    { id: 1, orderNo: "PO-001", vendor: "Tech Supplies Ltd", date: "2024-01-15", totalAmount: 45000, status: "Pending", items: [{ product: "Product A", account: "Inventory", quantity: 10, rate: 4500, amount: 45000 }], reference: "REF-001", expectedDelivery: "2024-02-01", paymentTerms: "Due on Receipt", deliveryAddress: "123 Main St, City", notes: "Urgent delivery required" },
+    { id: 2, orderNo: "PO-002", vendor: "Office Equipment Co", date: "2024-01-16", totalAmount: 32000, status: "Approved", items: [{ product: "Product B", account: "Inventory", quantity: 8, rate: 4000, amount: 32000 }], reference: "REF-002", expectedDelivery: "2024-02-05", paymentTerms: "Net 30", deliveryAddress: "456 Oak Ave, Town", notes: "Standard delivery" },
+    { id: 3, orderNo: "PO-003", vendor: "Software Solutions", date: "2024-01-17", totalAmount: 25000, status: "Delivered", items: [{ product: "Product C", account: "Office Supplies", quantity: 5, rate: 5000, amount: 25000 }], reference: "REF-003", expectedDelivery: "2024-01-25", paymentTerms: "Net 15", deliveryAddress: "789 Pine St, Village", notes: "Digital delivery" },
+    { id: 4, orderNo: "PO-004", vendor: "Furniture World", date: "2024-01-18", totalAmount: 65000, status: "Pending", items: [{ product: "Product D", account: "Equipment", quantity: 13, rate: 5000, amount: 65000 }], reference: "REF-004", expectedDelivery: "2024-02-10", paymentTerms: "Due on Receipt", deliveryAddress: "321 Elm Dr, County", notes: "Fragile items" }
   ]);
 
   const [orderForm, setOrderForm] = useState({
@@ -107,7 +108,12 @@ const PurchaseOrders = () => {
         date: orderForm.date,
         totalAmount: subtotal,
         status: "Pending",
-        items: processedItems
+        items: processedItems,
+        reference: orderForm.reference,
+        expectedDelivery: orderForm.expectedDelivery,
+        paymentTerms: orderForm.paymentTerms,
+        deliveryAddress: orderForm.deliveryAddress,
+        notes: orderForm.notes
       };
       
       setPurchaseOrders([...purchaseOrders, newOrder]);
@@ -126,6 +132,15 @@ const PurchaseOrders = () => {
     }
   };
 
+  const handleSaveAsDraft = () => {
+    toast({
+      title: "Draft Saved",
+      description: "Purchase order has been saved as draft."
+    });
+    setIsCreateDialogOpen(false);
+    resetForm();
+  };
+
   const handleViewOrder = (order) => {
     setSelectedOrder(order);
     setIsViewDialogOpen(true);
@@ -136,12 +151,12 @@ const PurchaseOrders = () => {
     setOrderForm({
       vendor: order.vendor,
       orderNo: order.orderNo,
-      reference: "",
+      reference: order.reference || "",
       date: order.date,
-      expectedDelivery: "",
-      paymentTerms: "Due on Receipt",
-      deliveryAddress: "",
-      notes: "",
+      expectedDelivery: order.expectedDelivery || "",
+      paymentTerms: order.paymentTerms || "Due on Receipt",
+      deliveryAddress: order.deliveryAddress || "",
+      notes: order.notes || "",
       items: order.items?.map(item => ({
         product: item.product,
         account: item.account || "",
@@ -173,7 +188,12 @@ const PurchaseOrders = () => {
         orderNo: orderForm.orderNo,
         date: orderForm.date,
         totalAmount: subtotal,
-        items: processedItems
+        items: processedItems,
+        reference: orderForm.reference,
+        expectedDelivery: orderForm.expectedDelivery,
+        paymentTerms: orderForm.paymentTerms,
+        deliveryAddress: orderForm.deliveryAddress,
+        notes: orderForm.notes
       };
       
       setPurchaseOrders(purchaseOrders.map(order => 
@@ -230,6 +250,14 @@ const PurchaseOrders = () => {
 
   const handleApproveOrder = (order) => {
     handleStatusChange(order.id, "Approved");
+  };
+
+  const handleCancel = () => {
+    resetForm();
+    setIsCreateDialogOpen(false);
+    setIsEditDialogOpen(false);
+    setIsViewDialogOpen(false);
+    setSelectedOrder(null);
   };
 
   const getStatusColor = (status) => {
@@ -481,10 +509,10 @@ const PurchaseOrders = () => {
               </div>
 
               <div className="flex gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                <Button variant="outline" onClick={handleCancel}>
                   Cancel
                 </Button>
-                <Button variant="outline" onClick={handleCreateOrder}>
+                <Button variant="outline" onClick={handleSaveAsDraft}>
                   Save as Draft
                 </Button>
                 <Button onClick={handleCreateOrder}>
@@ -604,10 +632,20 @@ const PurchaseOrders = () => {
                   <div className="space-y-1">
                     <p><span className="font-medium">Order Date:</span> {selectedOrder.date}</p>
                     <p><span className="font-medium">Order No:</span> {selectedOrder.orderNo}</p>
+                    <p><span className="font-medium">Reference:</span> {selectedOrder.reference || "N/A"}</p>
+                    <p><span className="font-medium">Expected Delivery:</span> {selectedOrder.expectedDelivery || "N/A"}</p>
+                    <p><span className="font-medium">Payment Terms:</span> {selectedOrder.paymentTerms || "Due on Receipt"}</p>
                     <p><span className="font-medium">Status:</span> {selectedOrder.status}</p>
                   </div>
                 </div>
               </div>
+
+              {selectedOrder.deliveryAddress && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Delivery Address</h3>
+                  <p>{selectedOrder.deliveryAddress}</p>
+                </div>
+              )}
               
               {/* Items Table */}
               <div>
@@ -649,6 +687,13 @@ const PurchaseOrders = () => {
                   </div>
                 </div>
               </div>
+
+              {selectedOrder.notes && (
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Notes</h3>
+                  <p>{selectedOrder.notes}</p>
+                </div>
+              )}
               
               <div className="flex gap-2 pt-4">
                 <Button onClick={() => handleApproveOrder(selectedOrder)}>
@@ -701,6 +746,19 @@ const PurchaseOrders = () => {
                 </Select>
               </div>
               <div>
+                <label className="text-sm font-medium">Delivery Address</label>
+                <Textarea 
+                  value={orderForm.deliveryAddress}
+                  onChange={(e) => setOrderForm({...orderForm, deliveryAddress: e.target.value})}
+                  placeholder="Enter delivery address"
+                  className="min-h-[40px]"
+                />
+              </div>
+            </div>
+
+            {/* Order Details */}
+            <div className="grid grid-cols-3 gap-6">
+              <div>
                 <label className="text-sm font-medium text-red-500">Purchase Order#*</label>
                 <Input 
                   value={orderForm.orderNo}
@@ -708,15 +766,47 @@ const PurchaseOrders = () => {
                   placeholder="PO-0000"
                 />
               </div>
+              <div>
+                <label className="text-sm font-medium">Reference#</label>
+                <Input 
+                  value={orderForm.reference}
+                  onChange={(e) => setOrderForm({...orderForm, reference: e.target.value})}
+                  placeholder="Enter reference"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-red-500">Date*</label>
+                <Input 
+                  type="date"
+                  value={orderForm.date}
+                  onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium text-red-500">Date*</label>
-              <Input 
-                type="date"
-                value={orderForm.date}
-                onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
-              />
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium">Expected Delivery Date</label>
+                <Input 
+                  type="date"
+                  value={orderForm.expectedDelivery}
+                  onChange={(e) => setOrderForm({...orderForm, expectedDelivery: e.target.value})}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Payment Terms</label>
+                <Select value={orderForm.paymentTerms} onValueChange={(value) => setOrderForm({...orderForm, paymentTerms: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
+                    <SelectItem value="Net 15">Net 15</SelectItem>
+                    <SelectItem value="Net 30">Net 30</SelectItem>
+                    <SelectItem value="Net 60">Net 60</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Item Table */}
@@ -817,6 +907,10 @@ const PurchaseOrders = () => {
                     <span>Sub Total:</span>
                     <span>₹{subtotal.toFixed(2)}</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span>Discount:</span>
+                    <span>₹0.00</span>
+                  </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
                     <span>₹{subtotal.toFixed(2)}</span>
@@ -825,11 +919,22 @@ const PurchaseOrders = () => {
               </div>
             </div>
 
+            {/* Customer Notes */}
+            <div>
+              <label className="text-sm font-medium">Customer Notes</label>
+              <Textarea 
+                value={orderForm.notes}
+                onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
+                placeholder="Will be displayed on the purchase order"
+                className="mt-1"
+              />
+            </div>
+
             <div className="flex gap-2 pt-4">
               <Button onClick={handleUpdateOrder} className="flex-1">
                 Update Order
               </Button>
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">
+              <Button variant="outline" onClick={handleCancel} className="flex-1">
                 Cancel
               </Button>
             </div>
