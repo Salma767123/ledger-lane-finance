@@ -7,20 +7,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Clipboard, Plus, Search, Eye, Edit, Trash2, X } from "lucide-react";
+import { Clipboard, Plus, Search, Eye, Edit, Trash2, X, RefreshCw, Check, Clock, Truck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PurchaseOrders = () => {
   const { toast } = useToast();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
   
   const [purchaseOrders, setPurchaseOrders] = useState([
-    { id: 1, orderNo: "PO-001", vendor: "Tech Supplies Ltd", date: "2024-01-15", totalAmount: 45000, status: "Pending", items: [{ product: "Product A", quantity: 10, rate: 4500, amount: 45000 }] },
-    { id: 2, orderNo: "PO-002", vendor: "Office Equipment Co", date: "2024-01-16", totalAmount: 32000, status: "Approved", items: [{ product: "Product B", quantity: 8, rate: 4000, amount: 32000 }] },
-    { id: 3, orderNo: "PO-003", vendor: "Software Solutions", date: "2024-01-17", totalAmount: 25000, status: "Delivered", items: [{ product: "Product C", quantity: 5, rate: 5000, amount: 25000 }] },
-    { id: 4, orderNo: "PO-004", vendor: "Furniture World", date: "2024-01-18", totalAmount: 65000, status: "Pending", items: [{ product: "Product D", quantity: 13, rate: 5000, amount: 65000 }] }
+    { id: 1, orderNo: "PO-001", vendor: "Tech Supplies Ltd", date: "2024-01-15", totalAmount: 45000, status: "Pending", items: [{ product: "Product A", account: "Inventory", quantity: 10, rate: 4500, amount: 45000 }] },
+    { id: 2, orderNo: "PO-002", vendor: "Office Equipment Co", date: "2024-01-16", totalAmount: 32000, status: "Approved", items: [{ product: "Product B", account: "Inventory", quantity: 8, rate: 4000, amount: 32000 }] },
+    { id: 3, orderNo: "PO-003", vendor: "Software Solutions", date: "2024-01-17", totalAmount: 25000, status: "Delivered", items: [{ product: "Product C", account: "Office Supplies", quantity: 5, rate: 5000, amount: 25000 }] },
+    { id: 4, orderNo: "PO-004", vendor: "Furniture World", date: "2024-01-18", totalAmount: 65000, status: "Pending", items: [{ product: "Product D", account: "Equipment", quantity: 13, rate: 5000, amount: 65000 }] }
   ]);
 
   const [orderForm, setOrderForm] = useState({
@@ -32,7 +33,7 @@ const PurchaseOrders = () => {
     paymentTerms: "Due on Receipt",
     deliveryAddress: "",
     notes: "",
-    items: [{ product: "", quantity: "", rate: "", amount: 0 }]
+    items: [{ product: "", account: "", quantity: "", rate: "", amount: 0 }]
   });
 
   const calculateItemAmount = (quantity, rate) => {
@@ -47,7 +48,7 @@ const PurchaseOrders = () => {
   const addItem = () => {
     setOrderForm({
       ...orderForm,
-      items: [...orderForm.items, { product: "", quantity: "", rate: "", amount: 0 }]
+      items: [...orderForm.items, { product: "", account: "", quantity: "", rate: "", amount: 0 }]
     });
   };
 
@@ -82,7 +83,7 @@ const PurchaseOrders = () => {
       paymentTerms: "Due on Receipt",
       deliveryAddress: "",
       notes: "",
-      items: [{ product: "", quantity: "", rate: "", amount: 0 }]
+      items: [{ product: "", account: "", quantity: "", rate: "", amount: 0 }]
     });
   };
 
@@ -94,6 +95,7 @@ const PurchaseOrders = () => {
         .filter(item => item.product)
         .map(item => ({
           product: item.product,
+          account: item.account,
           quantity: parseFloat(String(item.quantity || "0")),
           rate: parseFloat(String(item.rate || "0")),
           amount: parseFloat(String(item.quantity || "0")) * parseFloat(String(item.rate || "0"))
@@ -130,11 +132,77 @@ const PurchaseOrders = () => {
     setIsViewDialogOpen(true);
   };
 
+  const handleEditOrder = (order) => {
+    setSelectedOrder(order);
+    setOrderForm({
+      vendor: order.vendor,
+      orderNo: order.orderNo,
+      reference: "",
+      date: order.date,
+      expectedDelivery: "",
+      paymentTerms: "Due on Receipt",
+      deliveryAddress: "",
+      notes: "",
+      items: order.items?.map(item => ({
+        product: item.product,
+        account: item.account || "",
+        quantity: item.quantity.toString(),
+        rate: item.rate.toString(),
+        amount: item.amount
+      })) || [{ product: "", account: "", quantity: "", rate: "", amount: 0 }]
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleUpdateOrder = () => {
+    if (selectedOrder && orderForm.vendor && orderForm.date) {
+      const { subtotal } = calculateTotals();
+      
+      const processedItems = orderForm.items
+        .filter(item => item.product)
+        .map(item => ({
+          product: item.product,
+          account: item.account,
+          quantity: parseFloat(String(item.quantity || "0")),
+          rate: parseFloat(String(item.rate || "0")),
+          amount: parseFloat(String(item.quantity || "0")) * parseFloat(String(item.rate || "0"))
+        }));
+      
+      const updatedOrder = {
+        ...selectedOrder,
+        vendor: orderForm.vendor,
+        orderNo: orderForm.orderNo,
+        date: orderForm.date,
+        totalAmount: subtotal,
+        items: processedItems
+      };
+      
+      setPurchaseOrders(purchaseOrders.map(order => 
+        order.id === selectedOrder.id ? updatedOrder : order
+      ));
+      setIsEditDialogOpen(false);
+      toast({
+        title: "Purchase Order Updated",
+        description: `Order ${selectedOrder.orderNo} has been updated successfully.`
+      });
+    }
+  };
+
   const handleDeleteOrder = (orderId) => {
     setPurchaseOrders(purchaseOrders.filter(order => order.id !== orderId));
     toast({
       title: "Order Deleted",
       description: "Purchase order has been deleted successfully."
+    });
+  };
+
+  const handleStatusChange = (orderId, newStatus) => {
+    setPurchaseOrders(purchaseOrders.map(order => 
+      order.id === orderId ? { ...order, status: newStatus } : order
+    ));
+    toast({
+      title: "Status Updated",
+      description: `Order status changed to ${newStatus}.`
     });
   };
 
@@ -144,6 +212,15 @@ const PurchaseOrders = () => {
       case 'Approved': return 'bg-blue-100 text-blue-800';
       case 'Delivered': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case 'Pending': return <Clock className="h-4 w-4" />;
+      case 'Approved': return <Check className="h-4 w-4" />;
+      case 'Delivered': return <Truck className="h-4 w-4" />;
+      default: return <RefreshCw className="h-4 w-4" />;
     }
   };
 
@@ -160,7 +237,7 @@ const PurchaseOrders = () => {
           <DialogTrigger asChild>
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              Create Purchase Order
+              New Purchase Order
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -171,8 +248,8 @@ const PurchaseOrders = () => {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-6">
-              {/* Order Header */}
-              <div className="grid grid-cols-3 gap-6">
+              {/* Vendor Selection */}
+              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium text-red-500">Vendor Name*</label>
                   <Select value={orderForm.vendor} onValueChange={(value) => setOrderForm({...orderForm, vendor: value})}>
@@ -187,6 +264,19 @@ const PurchaseOrders = () => {
                     </SelectContent>
                   </Select>
                 </div>
+                <div>
+                  <label className="text-sm font-medium">Delivery Address</label>
+                  <Textarea 
+                    value={orderForm.deliveryAddress}
+                    onChange={(e) => setOrderForm({...orderForm, deliveryAddress: e.target.value})}
+                    placeholder="Enter delivery address"
+                    className="min-h-[40px]"
+                  />
+                </div>
+              </div>
+
+              {/* Order Details */}
+              <div className="grid grid-cols-3 gap-6">
                 <div>
                   <label className="text-sm font-medium text-red-500">Purchase Order#*</label>
                   <Input 
@@ -203,9 +293,6 @@ const PurchaseOrders = () => {
                     placeholder="Enter reference"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-6">
                 <div>
                   <label className="text-sm font-medium text-red-500">Date*</label>
                   <Input 
@@ -214,13 +301,15 @@ const PurchaseOrders = () => {
                     onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
                   />
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6">
                 <div>
                   <label className="text-sm font-medium">Expected Delivery Date</label>
                   <Input 
                     type="date"
                     value={orderForm.expectedDelivery}
                     onChange={(e) => setOrderForm({...orderForm, expectedDelivery: e.target.value})}
-                    placeholder="dd MMM yyyy"
                   />
                 </div>
                 <div>
@@ -243,21 +332,27 @@ const PurchaseOrders = () => {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-lg font-semibold">Item Table</h3>
-                  <Button onClick={addItem} variant="outline" size="sm">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add New Row
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={addItem} variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add New Row
+                    </Button>
+                    <Button variant="outline" size="sm">
+                      Add Items in Bulk
+                    </Button>
+                  </div>
                 </div>
                 
                 <div className="border rounded-lg overflow-hidden">
                   <Table>
                     <TableHeader>
                       <TableRow className="bg-gray-50">
-                        <TableHead className="w-[40%]">ITEM DETAILS</TableHead>
-                        <TableHead className="w-[15%]">QUANTITY</TableHead>
-                        <TableHead className="w-[15%]">RATE</TableHead>
-                        <TableHead className="w-[15%]">AMOUNT</TableHead>
-                        <TableHead className="w-[15%]">ACTION</TableHead>
+                        <TableHead className="w-[30%]">ITEM DETAILS</TableHead>
+                        <TableHead className="w-[20%]">ACCOUNT</TableHead>
+                        <TableHead className="w-[12%]">QUANTITY</TableHead>
+                        <TableHead className="w-[12%]">RATE</TableHead>
+                        <TableHead className="w-[12%]">AMOUNT</TableHead>
+                        <TableHead className="w-[14%]">ACTION</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -270,6 +365,22 @@ const PurchaseOrders = () => {
                               placeholder="Type or click to select an item."
                               className="border-0 focus:ring-0"
                             />
+                          </TableCell>
+                          <TableCell>
+                            <Select 
+                              value={item.account} 
+                              onValueChange={(value) => updateItem(index, 'account', value)}
+                            >
+                              <SelectTrigger className="border-0 focus:ring-0">
+                                <SelectValue placeholder="Select an account" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Inventory">Inventory</SelectItem>
+                                <SelectItem value="Office Supplies">Office Supplies</SelectItem>
+                                <SelectItem value="Equipment">Equipment</SelectItem>
+                                <SelectItem value="Software">Software</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </TableCell>
                           <TableCell>
                             <Input 
@@ -291,7 +402,7 @@ const PurchaseOrders = () => {
                           </TableCell>
                           <TableCell>
                             <span className="text-lg font-semibold">
-                              {item.amount?.toFixed(2) || '0.00'}
+                              ₹{item.amount?.toFixed(2) || '0.00'}
                             </span>
                           </TableCell>
                           <TableCell>
@@ -312,6 +423,26 @@ const PurchaseOrders = () => {
                 </div>
               </div>
 
+              {/* Order Summary */}
+              <div className="border-t pt-4">
+                <div className="flex justify-end">
+                  <div className="w-64 space-y-2">
+                    <div className="flex justify-between">
+                      <span>Sub Total:</span>
+                      <span>₹{subtotal.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Discount:</span>
+                      <span>₹0.00</span>
+                    </div>
+                    <div className="flex justify-between font-bold text-lg border-t pt-2">
+                      <span>Total:</span>
+                      <span>₹{subtotal.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Customer Notes */}
               <div>
                 <label className="text-sm font-medium">Customer Notes</label>
@@ -323,21 +454,12 @@ const PurchaseOrders = () => {
                 />
               </div>
 
-              {/* Order Summary */}
-              <div className="border-t pt-4">
-                <div className="flex justify-end">
-                  <div className="w-64 space-y-2">
-                    <div className="flex justify-between font-bold text-lg">
-                      <span>Total:</span>
-                      <span>₹{subtotal.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <div className="flex gap-2 pt-4">
                 <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
                   Cancel
+                </Button>
+                <Button variant="outline" onClick={handleCreateOrder}>
+                  Save as Draft
                 </Button>
                 <Button onClick={handleCreateOrder}>
                   Save and Send
@@ -382,16 +504,26 @@ const PurchaseOrders = () => {
                   <TableCell>{order.date}</TableCell>
                   <TableCell>₹{order.totalAmount.toLocaleString()}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(order.status)}`}>
-                      {order.status}
-                    </span>
+                    <Select value={order.status} onValueChange={(value) => handleStatusChange(order.id, value)}>
+                      <SelectTrigger className={`w-32 ${getStatusColor(order.status)}`}>
+                        <div className="flex items-center gap-2">
+                          {getStatusIcon(order.status)}
+                          <SelectValue />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Pending">Pending</SelectItem>
+                        <SelectItem value="Approved">Approved</SelectItem>
+                        <SelectItem value="Delivered">Delivered</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)} title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" title="Edit">
+                      <Button variant="outline" size="sm" onClick={() => handleEditOrder(order)} title="Edit">
                         <Edit className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)} title="Delete">
@@ -408,68 +540,151 @@ const PurchaseOrders = () => {
 
       {/* View Order Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Purchase Order Details</DialogTitle>
           </DialogHeader>
           {selectedOrder && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-6">
+              {/* Invoice Header */}
+              <div className="border-b pb-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold">PURCHASE ORDER</h2>
+                    <p className="text-lg font-semibold text-blue-600">{selectedOrder.orderNo}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(selectedOrder.status)}`}>
+                      {selectedOrder.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Vendor and Order Info */}
+              <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Order Number</label>
-                  <p className="text-lg font-semibold">{selectedOrder.orderNo}</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">Vendor Details</h3>
+                  <div className="space-y-1">
+                    <p className="font-medium">{selectedOrder.vendor}</p>
+                    <p>Vendor Address Line 1</p>
+                    <p>Vendor Address Line 2</p>
+                    <p>Phone: +91 9876543210</p>
+                    <p>Email: vendor@example.com</p>
+                  </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-600">Status</label>
-                  <span className={`px-2 py-1 rounded-full text-xs ${getStatusColor(selectedOrder.status)}`}>
-                    {selectedOrder.status}
-                  </span>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Vendor</label>
-                  <p>{selectedOrder.vendor}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Date</label>
-                  <p>{selectedOrder.date}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-600">Total Amount</label>
-                  <p className="text-lg font-semibold">₹{selectedOrder.totalAmount.toLocaleString()}</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">Order Details</h3>
+                  <div className="space-y-1">
+                    <p><span className="font-medium">Order Date:</span> {selectedOrder.date}</p>
+                    <p><span className="font-medium">Order No:</span> {selectedOrder.orderNo}</p>
+                    <p><span className="font-medium">Status:</span> {selectedOrder.status}</p>
+                  </div>
                 </div>
               </div>
               
+              {/* Items Table */}
               <div>
-                <h4 className="font-medium mb-2">Order Items</h4>
+                <h3 className="font-semibold text-gray-900 mb-3">Order Items</h3>
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Product</TableHead>
-                      <TableHead>Quantity</TableHead>
-                      <TableHead>Rate</TableHead>
-                      <TableHead>Amount</TableHead>
+                    <TableRow className="bg-gray-50">
+                      <TableHead>Item</TableHead>
+                      <TableHead>Account</TableHead>
+                      <TableHead className="text-center">Quantity</TableHead>
+                      <TableHead className="text-right">Rate</TableHead>
+                      <TableHead className="text-right">Amount</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {selectedOrder.items?.map((item, index) => (
                       <TableRow key={index}>
-                        <TableCell>{item.product}</TableCell>
-                        <TableCell>{item.quantity}</TableCell>
-                        <TableCell>₹{item.rate}</TableCell>
-                        <TableCell>₹{item.amount?.toLocaleString()}</TableCell>
+                        <TableCell className="font-medium">{item.product}</TableCell>
+                        <TableCell>{item.account || "N/A"}</TableCell>
+                        <TableCell className="text-center">{item.quantity}</TableCell>
+                        <TableCell className="text-right">₹{item.rate.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">₹{item.amount.toLocaleString()}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
               </div>
+
+              {/* Totals */}
+              <div className="flex justify-end border-t pt-4">
+                <div className="w-64 space-y-2">
+                  <div className="flex justify-between">
+                    <span>Subtotal:</span>
+                    <span>₹{selectedOrder.totalAmount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg border-t pt-2">
+                    <span>Total:</span>
+                    <span>₹{selectedOrder.totalAmount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
               
               <div className="flex gap-2 pt-4">
-                <Button>Approve Order</Button>
-                <Button variant="outline">Edit Order</Button>
-                <Button variant="outline">Print Order</Button>
+                <Button onClick={() => handleStatusChange(selectedOrder.id, "Approved")}>
+                  Approve Order
+                </Button>
+                <Button variant="outline" onClick={() => {
+                  setIsViewDialogOpen(false);
+                  handleEditOrder(selectedOrder);
+                }}>
+                  Edit Order
+                </Button>
+                <Button variant="outline">
+                  Print Order
+                </Button>
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Order Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Purchase Order</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-6">
+            {/* Same form structure as create dialog */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm font-medium text-red-500">Vendor Name*</label>
+                <Select value={orderForm.vendor} onValueChange={(value) => setOrderForm({...orderForm, vendor: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a Vendor" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Tech Supplies Ltd">Tech Supplies Ltd</SelectItem>
+                    <SelectItem value="Office Equipment Co">Office Equipment Co</SelectItem>
+                    <SelectItem value="Software Solutions">Software Solutions</SelectItem>
+                    <SelectItem value="Furniture World">Furniture World</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-red-500">Purchase Order#*</label>
+                <Input 
+                  value={orderForm.orderNo}
+                  onChange={(e) => setOrderForm({...orderForm, orderNo: e.target.value})}
+                  placeholder="PO-0000"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-4">
+              <Button onClick={handleUpdateOrder} className="flex-1">
+                Update Order
+              </Button>
+              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)} className="flex-1">
+                Cancel
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

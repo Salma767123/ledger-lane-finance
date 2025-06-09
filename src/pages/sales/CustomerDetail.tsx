@@ -3,13 +3,22 @@ import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Phone, Mail, MapPin, Calendar, Package, DollarSign, Users } from "lucide-react";
+import { ArrowLeft, Phone, Mail, MapPin, Calendar, Package, DollarSign, Users, Eye, Edit, Trash2, Plus, Download, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const CustomerDetail = () => {
   const { customerId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isViewOrderDialogOpen, setIsViewOrderDialogOpen] = useState(false);
+  const [isViewTransactionDialogOpen, setIsViewTransactionDialogOpen] = useState(false);
+  const [isAddPaymentDialogOpen, setIsAddPaymentDialogOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
   
   // Sample customer data - in real app, fetch by customerId
   const customer = {
@@ -27,19 +36,60 @@ const CustomerDetail = () => {
     totalValue: 650000
   };
 
-  const orderHistory = [
+  const [orderHistory, setOrderHistory] = useState([
     { id: 1, orderNo: "SO-001", date: "2024-01-15", amount: 85000, status: "Delivered", items: 3 },
     { id: 2, orderNo: "SO-003", date: "2024-01-12", amount: 65000, status: "Shipped", items: 2 },
     { id: 3, orderNo: "SO-007", date: "2024-01-08", amount: 45000, status: "Processing", items: 1 },
     { id: 4, orderNo: "SO-012", date: "2023-12-25", amount: 25000, status: "Delivered", items: 2 }
-  ];
+  ]);
 
-  const transactionHistory = [
+  const [transactionHistory, setTransactionHistory] = useState([
     { id: 1, date: "2024-01-16", type: "Payment", description: "Payment received for SO-001", amount: 85000, balance: 0 },
     { id: 2, date: "2024-01-15", type: "Sale", description: "Sales Order SO-001", amount: -85000, balance: -85000 },
     { id: 3, date: "2024-01-13", type: "Payment", description: "Payment received for SO-003", amount: 65000, balance: 0 },
     { id: 4, date: "2024-01-12", type: "Sale", description: "Sales Order SO-003", amount: -65000, balance: -65000 }
-  ];
+  ]);
+
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order);
+    setIsViewOrderDialogOpen(true);
+  };
+
+  const handleEditOrder = (orderId) => {
+    toast({
+      title: "Edit Order",
+      description: `Redirecting to edit order ${orderId}...`
+    });
+    // In real app, navigate to edit page
+  };
+
+  const handleDeleteOrder = (orderId) => {
+    setOrderHistory(orderHistory.filter(order => order.id !== orderId));
+    toast({
+      title: "Order Deleted",
+      description: "Order has been deleted successfully."
+    });
+  };
+
+  const handleViewTransaction = (transaction) => {
+    setSelectedTransaction(transaction);
+    setIsViewTransactionDialogOpen(true);
+  };
+
+  const handleEditTransaction = (transactionId) => {
+    toast({
+      title: "Edit Transaction",
+      description: `Editing transaction ${transactionId}...`
+    });
+  };
+
+  const handleDeleteTransaction = (transactionId) => {
+    setTransactionHistory(transactionHistory.filter(transaction => transaction.id !== transactionId));
+    toast({
+      title: "Transaction Deleted",
+      description: "Transaction has been deleted successfully."
+    });
+  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -184,7 +234,13 @@ const CustomerDetail = () => {
         <TabsContent value="orders">
           <Card>
             <CardHeader>
-              <CardTitle>Sales Order History</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Sales Order History</CardTitle>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Order
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -211,9 +267,23 @@ const CustomerDetail = () => {
                         </span>
                       </TableCell>
                       <TableCell>
-                        <Button variant="outline" size="sm">
-                          View Details
-                        </Button>
+                        <div className="flex gap-1">
+                          <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)} title="View">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleEditOrder(order.id)} title="Edit">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" title="Download">
+                            <Download className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" title="Send">
+                            <Send className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)} title="Delete">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -226,7 +296,43 @@ const CustomerDetail = () => {
         <TabsContent value="transactions">
           <Card>
             <CardHeader>
-              <CardTitle>Transaction History</CardTitle>
+              <div className="flex justify-between items-center">
+                <CardTitle>Transaction History</CardTitle>
+                <div className="flex gap-2">
+                  <Dialog open={isAddPaymentDialogOpen} onOpenChange={setIsAddPaymentDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Payment
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Add Payment</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium">Amount</label>
+                          <Input type="number" placeholder="Enter amount" />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Date</label>
+                          <Input type="date" />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Reference</label>
+                          <Input placeholder="Payment reference" />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button className="flex-1">Add Payment</Button>
+                          <Button variant="outline" className="flex-1" onClick={() => setIsAddPaymentDialogOpen(false)}>Cancel</Button>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Button variant="outline">Export</Button>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <Table>
@@ -237,6 +343,7 @@ const CustomerDetail = () => {
                     <TableHead>Description</TableHead>
                     <TableHead>Amount</TableHead>
                     <TableHead>Balance</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -253,6 +360,19 @@ const CustomerDetail = () => {
                         {transaction.amount < 0 ? '-' : '+'}₹{Math.abs(transaction.amount).toLocaleString()}
                       </TableCell>
                       <TableCell>₹{transaction.balance.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <div className="flex gap-1">
+                          <Button variant="outline" size="sm" onClick={() => handleViewTransaction(transaction)} title="View Details">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleEditTransaction(transaction.id)} title="Edit">
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={() => handleDeleteTransaction(transaction.id)} title="Delete">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -261,6 +381,115 @@ const CustomerDetail = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* View Order Dialog */}
+      <Dialog open={isViewOrderDialogOpen} onOpenChange={setIsViewOrderDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Order Details</DialogTitle>
+          </DialogHeader>
+          {selectedOrder && (
+            <div className="space-y-6">
+              {/* Invoice Header */}
+              <div className="border-b pb-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-2xl font-bold">SALES ORDER</h2>
+                    <p className="text-lg font-semibold text-blue-600">{selectedOrder.orderNo}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className={`px-3 py-1 rounded-full text-sm ${getStatusColor(selectedOrder.status)}`}>
+                      {selectedOrder.status}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Customer and Order Info */}
+              <div className="grid grid-cols-2 gap-8">
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Bill To</h3>
+                  <div className="space-y-1">
+                    <p className="font-medium">{customer.name}</p>
+                    <p>{customer.address}</p>
+                    <p>Phone: {customer.phone}</p>
+                    <p>Email: {customer.email}</p>
+                  </div>
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Order Details</h3>
+                  <div className="space-y-1">
+                    <p><span className="font-medium">Order Date:</span> {selectedOrder.date}</p>
+                    <p><span className="font-medium">Order No:</span> {selectedOrder.orderNo}</p>
+                    <p><span className="font-medium">Status:</span> {selectedOrder.status}</p>
+                    <p><span className="font-medium">Items:</span> {selectedOrder.items}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Order Summary */}
+              <div className="flex justify-end border-t pt-4">
+                <div className="w-64 space-y-2">
+                  <div className="flex justify-between font-bold text-lg">
+                    <span>Total Amount:</span>
+                    <span>₹{selectedOrder.amount.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex gap-2 pt-4">
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Invoice
+                </Button>
+                <Button variant="outline">
+                  <Send className="h-4 w-4 mr-2" />
+                  Send to Customer
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* View Transaction Dialog */}
+      <Dialog open={isViewTransactionDialogOpen} onOpenChange={setIsViewTransactionDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Transaction Details</DialogTitle>
+          </DialogHeader>
+          {selectedTransaction && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Date</label>
+                  <p className="text-lg font-semibold">{selectedTransaction.date}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Type</label>
+                  <span className={`px-2 py-1 rounded-full text-xs ${selectedTransaction.type === 'Payment' ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}`}>
+                    {selectedTransaction.type}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Description</label>
+                  <p>{selectedTransaction.description}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Amount</label>
+                  <p className={`text-lg font-semibold ${selectedTransaction.amount < 0 ? 'text-red-600' : 'text-green-600'}`}>
+                    {selectedTransaction.amount < 0 ? '-' : '+'}₹{Math.abs(selectedTransaction.amount).toLocaleString()}
+                  </p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-gray-600">Running Balance</label>
+                  <p className="text-lg font-semibold">₹{selectedTransaction.balance.toLocaleString()}</p>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
