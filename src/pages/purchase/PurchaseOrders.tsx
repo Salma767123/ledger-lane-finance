@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
-import { Clipboard, Plus, Search, Eye, Edit, Trash2, X, RefreshCw, Check, Clock, Truck, Download, Send } from "lucide-react";
+import { Clipboard, Plus, Search, Eye, Edit, Trash2, X, RefreshCw, Check, Clock, Truck, Download, Send, FileText, Filter, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const PurchaseOrders = () => {
@@ -16,12 +16,97 @@ const PurchaseOrders = () => {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   
   const [purchaseOrders, setPurchaseOrders] = useState([
-    { id: 1, orderNo: "PO-001", vendor: "Tech Supplies Ltd", date: "2024-01-15", totalAmount: 45000, status: "Pending", items: [{ product: "Product A", account: "Inventory", quantity: 10, rate: 4500, amount: 45000 }], reference: "REF-001", expectedDelivery: "2024-02-01", paymentTerms: "Due on Receipt", deliveryAddress: "123 Main St, City", notes: "Urgent delivery required" },
-    { id: 2, orderNo: "PO-002", vendor: "Office Equipment Co", date: "2024-01-16", totalAmount: 32000, status: "Approved", items: [{ product: "Product B", account: "Inventory", quantity: 8, rate: 4000, amount: 32000 }], reference: "REF-002", expectedDelivery: "2024-02-05", paymentTerms: "Net 30", deliveryAddress: "456 Oak Ave, Town", notes: "Standard delivery" },
-    { id: 3, orderNo: "PO-003", vendor: "Software Solutions", date: "2024-01-17", totalAmount: 25000, status: "Delivered", items: [{ product: "Product C", account: "Office Supplies", quantity: 5, rate: 5000, amount: 25000 }], reference: "REF-003", expectedDelivery: "2024-01-25", paymentTerms: "Net 15", deliveryAddress: "789 Pine St, Village", notes: "Digital delivery" },
-    { id: 4, orderNo: "PO-004", vendor: "Furniture World", date: "2024-01-18", totalAmount: 65000, status: "Pending", items: [{ product: "Product D", account: "Equipment", quantity: 13, rate: 5000, amount: 65000 }], reference: "REF-004", expectedDelivery: "2024-02-10", paymentTerms: "Due on Receipt", deliveryAddress: "321 Elm Dr, County", notes: "Fragile items" }
+    { 
+      id: 1, 
+      orderNo: "PO-001", 
+      vendor: "Tech Supplies Ltd", 
+      date: "2024-01-15", 
+      totalAmount: 45000, 
+      status: "Confirmed", 
+      items: [{ product: "Product A", account: "Inventory", quantity: 10, rate: 4500, amount: 45000, tax: "GST@18%" }], 
+      reference: "REF-001", 
+      expectedDelivery: "2024-02-01", 
+      paymentTerms: "Due on Receipt", 
+      deliveryAddress: "123 Main St, City", 
+      shipmentPreference: "Standard Shipping",
+      notes: "Urgent delivery required",
+      vendorDetails: {
+        name: "Tech Supplies Ltd",
+        address: "123 Tech Park, Mumbai",
+        phone: "+91 9876543210",
+        email: "vendor@techsupplies.com",
+        gst: "27AABCT1332L1ZZ"
+      }
+    },
+    { 
+      id: 2, 
+      orderNo: "PO-002", 
+      vendor: "Office Equipment Co", 
+      date: "2024-01-16", 
+      totalAmount: 32000, 
+      status: "Approved", 
+      items: [{ product: "Product B", account: "Inventory", quantity: 8, rate: 4000, amount: 32000, tax: "GST@18%" }], 
+      reference: "REF-002", 
+      expectedDelivery: "2024-02-05", 
+      paymentTerms: "Net 30", 
+      deliveryAddress: "456 Oak Ave, Town", 
+      shipmentPreference: "Express Shipping",
+      notes: "Standard delivery",
+      vendorDetails: {
+        name: "Office Equipment Co",
+        address: "456 Business Park, Delhi",
+        phone: "+91 9876543211",
+        email: "vendor@officeequip.com",
+        gst: "07AABCT1332L1ZZ"
+      }
+    },
+    { 
+      id: 3, 
+      orderNo: "PO-003", 
+      vendor: "Software Solutions", 
+      date: "2024-01-17", 
+      totalAmount: 25000, 
+      status: "Delivered", 
+      items: [{ product: "Product C", account: "Office Supplies", quantity: 5, rate: 5000, amount: 25000, tax: "GST@18%" }], 
+      reference: "REF-003", 
+      expectedDelivery: "2024-01-25", 
+      paymentTerms: "Net 15", 
+      deliveryAddress: "789 Pine St, Village", 
+      shipmentPreference: "Standard Shipping",
+      notes: "Digital delivery",
+      vendorDetails: {
+        name: "Software Solutions",
+        address: "789 Software Park, Bangalore",
+        phone: "+91 9876543212",
+        email: "vendor@softsol.com",
+        gst: "29AABCT1332L1ZZ"
+      }
+    },
+    { 
+      id: 4, 
+      orderNo: "PO-004", 
+      vendor: "Furniture World", 
+      date: "2024-01-18", 
+      totalAmount: 65000, 
+      status: "Pending", 
+      items: [{ product: "Product D", account: "Equipment", quantity: 13, rate: 5000, amount: 65000, tax: "GST@18%" }], 
+      reference: "REF-004", 
+      expectedDelivery: "2024-02-10", 
+      paymentTerms: "Due on Receipt", 
+      deliveryAddress: "321 Elm Dr, County", 
+      shipmentPreference: "Heavy Freight",
+      notes: "Fragile items",
+      vendorDetails: {
+        name: "Furniture World",
+        address: "321 Furniture Plaza, Chennai",
+        phone: "+91 9876543213",
+        email: "vendor@furniture.com",
+        gst: "33AABCT1332L1ZZ"
+      }
+    }
   ]);
 
   const [orderForm, setOrderForm] = useState({
@@ -32,8 +117,9 @@ const PurchaseOrders = () => {
     expectedDelivery: "",
     paymentTerms: "Due on Receipt",
     deliveryAddress: "",
+    shipmentPreference: "",
     notes: "",
-    items: [{ product: "", account: "", quantity: "", rate: "", amount: 0 }]
+    items: [{ product: "", account: "", quantity: "", rate: "", amount: 0, tax: "" }]
   });
 
   const calculateItemAmount = (quantity, rate) => {
@@ -42,13 +128,16 @@ const PurchaseOrders = () => {
 
   const calculateTotals = () => {
     const subtotal = orderForm.items.reduce((sum, item) => sum + (item.amount || 0), 0);
-    return { subtotal };
+    const discount = 0;
+    const tax = subtotal * 0.18; // 18% GST
+    const total = subtotal + tax - discount;
+    return { subtotal, discount, tax, total };
   };
 
   const addItem = () => {
     setOrderForm({
       ...orderForm,
-      items: [...orderForm.items, { product: "", account: "", quantity: "", rate: "", amount: 0 }]
+      items: [...orderForm.items, { product: "", account: "", quantity: "", rate: "", amount: 0, tax: "" }]
     });
   };
 
@@ -82,14 +171,20 @@ const PurchaseOrders = () => {
       expectedDelivery: "",
       paymentTerms: "Due on Receipt",
       deliveryAddress: "",
+      shipmentPreference: "",
       notes: "",
-      items: [{ product: "", account: "", quantity: "", rate: "", amount: 0 }]
+      items: [{ product: "", account: "", quantity: "", rate: "", amount: 0, tax: "" }]
     });
+  };
+
+  const generateOrderNumber = () => {
+    const nextId = purchaseOrders.length + 1;
+    return `PO-${nextId.toString().padStart(3, '0')}`;
   };
 
   const handleCreateOrder = () => {
     if (orderForm.vendor && orderForm.date && orderForm.items.some(item => item.product)) {
-      const { subtotal } = calculateTotals();
+      const { total } = calculateTotals();
       
       const processedItems = orderForm.items
         .filter(item => item.product)
@@ -98,22 +193,31 @@ const PurchaseOrders = () => {
           account: item.account,
           quantity: parseFloat(item.quantity || "0"),
           rate: parseFloat(item.rate || "0"),
-          amount: parseFloat(item.quantity || "0") * parseFloat(item.rate || "0")
+          amount: parseFloat(item.quantity || "0") * parseFloat(item.rate || "0"),
+          tax: item.tax || "GST@18%"
         }));
       
       const newOrder = {
         id: purchaseOrders.length + 1,
-        orderNo: orderForm.orderNo || `PO-${(purchaseOrders.length + 1).toString().padStart(3, '0')}`,
+        orderNo: orderForm.orderNo || generateOrderNumber(),
         vendor: orderForm.vendor,
         date: orderForm.date,
-        totalAmount: subtotal,
+        totalAmount: total,
         status: "Pending",
         items: processedItems,
         reference: orderForm.reference,
         expectedDelivery: orderForm.expectedDelivery,
         paymentTerms: orderForm.paymentTerms,
         deliveryAddress: orderForm.deliveryAddress,
-        notes: orderForm.notes
+        shipmentPreference: orderForm.shipmentPreference,
+        notes: orderForm.notes,
+        vendorDetails: {
+          name: orderForm.vendor,
+          address: "Vendor Address",
+          phone: "+91 9876543210",
+          email: "vendor@example.com",
+          gst: "27AABCT1332L1ZZ"
+        }
       };
       
       setPurchaseOrders([...purchaseOrders, newOrder]);
@@ -156,21 +260,23 @@ const PurchaseOrders = () => {
       expectedDelivery: order.expectedDelivery || "",
       paymentTerms: order.paymentTerms || "Due on Receipt",
       deliveryAddress: order.deliveryAddress || "",
+      shipmentPreference: order.shipmentPreference || "",
       notes: order.notes || "",
       items: order.items?.map(item => ({
         product: item.product,
         account: item.account || "",
         quantity: item.quantity.toString(),
         rate: item.rate.toString(),
-        amount: item.amount
-      })) || [{ product: "", account: "", quantity: "", rate: "", amount: 0 }]
+        amount: item.amount,
+        tax: item.tax || "GST@18%"
+      })) || [{ product: "", account: "", quantity: "", rate: "", amount: 0, tax: "" }]
     });
     setIsEditDialogOpen(true);
   };
 
   const handleUpdateOrder = () => {
     if (selectedOrder && orderForm.vendor && orderForm.date) {
-      const { subtotal } = calculateTotals();
+      const { total } = calculateTotals();
       
       const processedItems = orderForm.items
         .filter(item => item.product)
@@ -179,7 +285,8 @@ const PurchaseOrders = () => {
           account: item.account,
           quantity: parseFloat(item.quantity || "0"),
           rate: parseFloat(item.rate || "0"),
-          amount: parseFloat(item.quantity || "0") * parseFloat(item.rate || "0")
+          amount: parseFloat(item.quantity || "0") * parseFloat(item.rate || "0"),
+          tax: item.tax || "GST@18%"
         }));
       
       const updatedOrder = {
@@ -187,12 +294,13 @@ const PurchaseOrders = () => {
         vendor: orderForm.vendor,
         orderNo: orderForm.orderNo,
         date: orderForm.date,
-        totalAmount: subtotal,
+        totalAmount: total,
         items: processedItems,
         reference: orderForm.reference,
         expectedDelivery: orderForm.expectedDelivery,
         paymentTerms: orderForm.paymentTerms,
         deliveryAddress: orderForm.deliveryAddress,
+        shipmentPreference: orderForm.shipmentPreference,
         notes: orderForm.notes
       };
       
@@ -242,6 +350,7 @@ const PurchaseOrders = () => {
   };
 
   const handlePrintOrder = (order) => {
+    window.print();
     toast({
       title: "Print Started",
       description: `Printing order ${order.orderNo}`
@@ -252,6 +361,33 @@ const PurchaseOrders = () => {
     handleStatusChange(order.id, "Approved");
   };
 
+  const handleConfirmOrder = (order) => {
+    handleStatusChange(order.id, "Confirmed");
+  };
+
+  const handleConvertToBill = (order) => {
+    if (order.status === "Confirmed" || order.status === "Delivered") {
+      toast({
+        title: "Converting to Bill",
+        description: `Converting order ${order.orderNo} to bill. Redirecting to bills module...`
+      });
+      // Here you would typically navigate to the bills module with the order data
+      // For now, we'll just show a success message
+      setTimeout(() => {
+        toast({
+          title: "Bill Created",
+          description: `Bill created from order ${order.orderNo} successfully.`
+        });
+      }, 2000);
+    } else {
+      toast({
+        title: "Cannot Convert",
+        description: "Only confirmed or delivered orders can be converted to bills.",
+        variant: "destructive"
+      });
+    }
+  };
+
   const handleCancel = () => {
     resetForm();
     setIsCreateDialogOpen(false);
@@ -260,10 +396,32 @@ const PurchaseOrders = () => {
     setSelectedOrder(null);
   };
 
+  const handleFilter = () => {
+    toast({
+      title: "Filter Applied",
+      description: "Filters have been applied to the purchase orders list."
+    });
+  };
+
+  const handleExport = () => {
+    toast({
+      title: "Export Started",
+      description: "Exporting purchase orders data to Excel file."
+    });
+  };
+
+  const handleBulkImport = () => {
+    toast({
+      title: "Bulk Import",
+      description: "Opening bulk import dialog for purchase orders."
+    });
+  };
+
   const getStatusColor = (status) => {
     switch (status) {
       case 'Pending': return 'bg-yellow-100 text-yellow-800';
       case 'Approved': return 'bg-blue-100 text-blue-800';
+      case 'Confirmed': return 'bg-purple-100 text-purple-800';
       case 'Delivered': return 'bg-green-100 text-green-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -273,12 +431,19 @@ const PurchaseOrders = () => {
     switch (status) {
       case 'Pending': return <Clock className="h-4 w-4" />;
       case 'Approved': return <Check className="h-4 w-4" />;
+      case 'Confirmed': return <Check className="h-4 w-4" />;
       case 'Delivered': return <Truck className="h-4 w-4" />;
       default: return <RefreshCw className="h-4 w-4" />;
     }
   };
 
-  const { subtotal } = calculateTotals();
+  const filteredOrders = purchaseOrders.filter(order =>
+    order.orderNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.vendor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    order.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const { subtotal, discount, tax, total } = calculateTotals();
 
   return (
     <div className="space-y-6">
@@ -287,241 +452,283 @@ const PurchaseOrders = () => {
           <Clipboard className="h-8 w-8" />
           Purchase Orders
         </h1>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Purchase Order
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <Clipboard className="h-5 w-5" />
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={handleBulkImport}>
+            <Upload className="h-4 w-4 mr-2" />
+            Bulk Import
+          </Button>
+          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
                 New Purchase Order
-              </DialogTitle>
-            </DialogHeader>
-            <div className="space-y-6">
-              {/* Vendor Selection */}
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-red-500">Vendor Name*</label>
-                  <Select value={orderForm.vendor} onValueChange={(value) => setOrderForm({...orderForm, vendor: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a Vendor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Tech Supplies Ltd">Tech Supplies Ltd</SelectItem>
-                      <SelectItem value="Office Equipment Co">Office Equipment Co</SelectItem>
-                      <SelectItem value="Software Solutions">Software Solutions</SelectItem>
-                      <SelectItem value="Furniture World">Furniture World</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Delivery Address</label>
-                  <Textarea 
-                    value={orderForm.deliveryAddress}
-                    onChange={(e) => setOrderForm({...orderForm, deliveryAddress: e.target.value})}
-                    placeholder="Enter delivery address"
-                    className="min-h-[40px]"
-                  />
-                </div>
-              </div>
-
-              {/* Order Details */}
-              <div className="grid grid-cols-3 gap-6">
-                <div>
-                  <label className="text-sm font-medium text-red-500">Purchase Order#*</label>
-                  <Input 
-                    value={orderForm.orderNo}
-                    onChange={(e) => setOrderForm({...orderForm, orderNo: e.target.value})}
-                    placeholder="PO-0000"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Reference#</label>
-                  <Input 
-                    value={orderForm.reference}
-                    onChange={(e) => setOrderForm({...orderForm, reference: e.target.value})}
-                    placeholder="Enter reference"
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-red-500">Date*</label>
-                  <Input 
-                    type="date"
-                    value={orderForm.date}
-                    onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="text-sm font-medium">Expected Delivery Date</label>
-                  <Input 
-                    type="date"
-                    value={orderForm.expectedDelivery}
-                    onChange={(e) => setOrderForm({...orderForm, expectedDelivery: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Payment Terms</label>
-                  <Select value={orderForm.paymentTerms} onValueChange={(value) => setOrderForm({...orderForm, paymentTerms: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
-                      <SelectItem value="Net 15">Net 15</SelectItem>
-                      <SelectItem value="Net 30">Net 30</SelectItem>
-                      <SelectItem value="Net 60">Net 60</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              {/* Item Table */}
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-semibold">Item Table</h3>
-                  <div className="flex gap-2">
-                    <Button onClick={addItem} variant="outline" size="sm">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add New Row
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Add Items in Bulk
-                    </Button>
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <Clipboard className="h-5 w-5" />
+                  New Purchase Order
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6">
+                {/* Vendor Selection */}
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-sm font-medium text-red-500">Vendor Name*</label>
+                    <Select value={orderForm.vendor} onValueChange={(value) => setOrderForm({...orderForm, vendor: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a Vendor" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Tech Supplies Ltd">Tech Supplies Ltd</SelectItem>
+                        <SelectItem value="Office Equipment Co">Office Equipment Co</SelectItem>
+                        <SelectItem value="Software Solutions">Software Solutions</SelectItem>
+                        <SelectItem value="Furniture World">Furniture World</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Delivery Address</label>
+                    <Textarea 
+                      value={orderForm.deliveryAddress}
+                      onChange={(e) => setOrderForm({...orderForm, deliveryAddress: e.target.value})}
+                      placeholder="Enter delivery address"
+                      className="min-h-[40px]"
+                    />
                   </div>
                 </div>
-                
-                <div className="border rounded-lg overflow-hidden">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-gray-50">
-                        <TableHead className="w-[30%]">ITEM DETAILS</TableHead>
-                        <TableHead className="w-[20%]">ACCOUNT</TableHead>
-                        <TableHead className="w-[12%]">QUANTITY</TableHead>
-                        <TableHead className="w-[12%]">RATE</TableHead>
-                        <TableHead className="w-[12%]">AMOUNT</TableHead>
-                        <TableHead className="w-[14%]">ACTION</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {orderForm.items.map((item, index) => (
-                        <TableRow key={index}>
-                          <TableCell>
-                            <Input 
-                              value={item.product}
-                              onChange={(e) => updateItem(index, 'product', e.target.value)}
-                              placeholder="Type or click to select an item."
-                              className="border-0 focus:ring-0"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Select 
-                              value={item.account} 
-                              onValueChange={(value) => updateItem(index, 'account', value)}
-                            >
-                              <SelectTrigger className="border-0 focus:ring-0">
-                                <SelectValue placeholder="Select an account" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Inventory">Inventory</SelectItem>
-                                <SelectItem value="Office Supplies">Office Supplies</SelectItem>
-                                <SelectItem value="Equipment">Equipment</SelectItem>
-                                <SelectItem value="Software">Software</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell>
-                            <Input 
-                              type="number"
-                              value={item.quantity}
-                              onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                              placeholder="1.00"
-                              className="border-0 focus:ring-0"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Input 
-                              type="number"
-                              value={item.rate}
-                              onChange={(e) => updateItem(index, 'rate', e.target.value)}
-                              placeholder="0.00"
-                              className="border-0 focus:ring-0"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <span className="text-lg font-semibold">
-                              ₹{item.amount?.toFixed(2) || '0.00'}
-                            </span>
-                          </TableCell>
-                          <TableCell>
-                            <Button 
-                              onClick={() => removeItem(index)}
-                              variant="ghost" 
-                              size="sm"
-                              disabled={orderForm.items.length === 1}
-                              className="text-red-500 hover:text-red-700"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
+
+                {/* Order Details */}
+                <div className="grid grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-red-500">Purchase Order#*</label>
+                    <Input 
+                      value={orderForm.orderNo}
+                      onChange={(e) => setOrderForm({...orderForm, orderNo: e.target.value})}
+                      placeholder={generateOrderNumber()}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Reference#</label>
+                    <Input 
+                      value={orderForm.reference}
+                      onChange={(e) => setOrderForm({...orderForm, reference: e.target.value})}
+                      placeholder="Enter reference"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-red-500">Date*</label>
+                    <Input 
+                      type="date"
+                      value={orderForm.date}
+                      onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Expected Delivery Date</label>
+                    <Input 
+                      type="date"
+                      value={orderForm.expectedDelivery}
+                      onChange={(e) => setOrderForm({...orderForm, expectedDelivery: e.target.value})}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <label className="text-sm font-medium">Payment Terms</label>
+                    <Select value={orderForm.paymentTerms} onValueChange={(value) => setOrderForm({...orderForm, paymentTerms: value})}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Due on Receipt">Due on Receipt</SelectItem>
+                        <SelectItem value="Net 15">Net 15</SelectItem>
+                        <SelectItem value="Net 30">Net 30</SelectItem>
+                        <SelectItem value="Net 60">Net 60</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Shipment Preference</label>
+                    <Select value={orderForm.shipmentPreference} onValueChange={(value) => setOrderForm({...orderForm, shipmentPreference: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose the shipment preference or type to add" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Standard Shipping">Standard Shipping</SelectItem>
+                        <SelectItem value="Express Shipping">Express Shipping</SelectItem>
+                        <SelectItem value="Heavy Freight">Heavy Freight</SelectItem>
+                        <SelectItem value="Air Freight">Air Freight</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Item Table */}
+                <div>
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-semibold">Item Table</h3>
+                    <div className="flex gap-2">
+                      <Button onClick={addItem} variant="outline" size="sm">
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add New Row
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        Add Items in Bulk
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="bg-gray-50">
+                          <TableHead className="w-[25%]">ITEM DETAILS</TableHead>
+                          <TableHead className="w-[15%]">ACCOUNT</TableHead>
+                          <TableHead className="w-[10%]">QUANTITY</TableHead>
+                          <TableHead className="w-[10%]">RATE</TableHead>
+                          <TableHead className="w-[10%]">TAX</TableHead>
+                          <TableHead className="w-[15%]">AMOUNT</TableHead>
+                          <TableHead className="w-[15%]">ACTION</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {orderForm.items.map((item, index) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              <Input 
+                                value={item.product}
+                                onChange={(e) => updateItem(index, 'product', e.target.value)}
+                                placeholder="Type or click to select an item."
+                                className="border-0 focus:ring-0"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Select 
+                                value={item.account} 
+                                onValueChange={(value) => updateItem(index, 'account', value)}
+                              >
+                                <SelectTrigger className="border-0 focus:ring-0">
+                                  <SelectValue placeholder="Select an account" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Inventory">Inventory</SelectItem>
+                                  <SelectItem value="Office Supplies">Office Supplies</SelectItem>
+                                  <SelectItem value="Equipment">Equipment</SelectItem>
+                                  <SelectItem value="Software">Software</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Input 
+                                type="number"
+                                value={item.quantity}
+                                onChange={(e) => updateItem(index, 'quantity', e.target.value)}
+                                placeholder="1"
+                                className="border-0 focus:ring-0"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input 
+                                type="number"
+                                value={item.rate}
+                                onChange={(e) => updateItem(index, 'rate', e.target.value)}
+                                placeholder="0"
+                                className="border-0 focus:ring-0"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Select 
+                                value={item.tax} 
+                                onValueChange={(value) => updateItem(index, 'tax', value)}
+                              >
+                                <SelectTrigger className="border-0 focus:ring-0">
+                                  <SelectValue placeholder="Select a Tax" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="GST@0%">GST@0%</SelectItem>
+                                  <SelectItem value="GST@5%">GST@5%</SelectItem>
+                                  <SelectItem value="GST@12%">GST@12%</SelectItem>
+                                  <SelectItem value="GST@18%">GST@18%</SelectItem>
+                                  <SelectItem value="GST@28%">GST@28%</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <span className="text-lg font-semibold">
+                                {item.amount?.toFixed(2) || '0.00'}
+                              </span>
+                            </TableCell>
+                            <TableCell>
+                              <Button 
+                                onClick={() => removeItem(index)}
+                                variant="ghost" 
+                                size="sm"
+                                disabled={orderForm.items.length === 1}
+                                className="text-red-500 hover:text-red-700"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 </div>
-              </div>
 
-              {/* Order Summary */}
-              <div className="border-t pt-4">
-                <div className="flex justify-end">
-                  <div className="w-64 space-y-2">
-                    <div className="flex justify-between">
-                      <span>Sub Total:</span>
-                      <span>₹{subtotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Discount:</span>
-                      <span>₹0.00</span>
-                    </div>
-                    <div className="flex justify-between font-bold text-lg border-t pt-2">
-                      <span>Total:</span>
-                      <span>₹{subtotal.toFixed(2)}</span>
+                {/* Order Summary */}
+                <div className="border-t pt-4">
+                  <div className="flex justify-end">
+                    <div className="w-80 space-y-3">
+                      <div className="flex justify-between">
+                        <span>Sub Total:</span>
+                        <span>₹{subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>Discount:</span>
+                        <div className="flex items-center gap-2">
+                          <Input type="number" defaultValue="0" className="w-16 h-8" />
+                          <span>%</span>
+                          <span>₹{discount.toFixed(2)}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between font-bold text-lg border-t pt-2">
+                        <span>Total:</span>
+                        <span>₹{subtotal.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Customer Notes */}
-              <div>
-                <label className="text-sm font-medium">Customer Notes</label>
-                <Textarea 
-                  value={orderForm.notes}
-                  onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
-                  placeholder="Will be displayed on the purchase order"
-                  className="mt-1"
-                />
-              </div>
+                {/* Customer Notes */}
+                <div>
+                  <label className="text-sm font-medium">Customer Notes</label>
+                  <Textarea 
+                    value={orderForm.notes}
+                    onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
+                    placeholder="Will be displayed on the purchase order"
+                    className="mt-1"
+                  />
+                </div>
 
-              <div className="flex gap-2 pt-4">
-                <Button variant="outline" onClick={handleCancel}>
-                  Cancel
-                </Button>
-                <Button variant="outline" onClick={handleSaveAsDraft}>
-                  Save as Draft
-                </Button>
-                <Button onClick={handleCreateOrder}>
-                  Save and Send
-                </Button>
+                <div className="flex gap-2 pt-4">
+                  <Button variant="outline" onClick={handleCancel}>
+                    Cancel
+                  </Button>
+                  <Button variant="outline" onClick={handleSaveAsDraft}>
+                    Save as Draft
+                  </Button>
+                  <Button onClick={handleCreateOrder}>
+                    Save and Send
+                  </Button>
+                </div>
               </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
 
       <Card>
@@ -531,10 +738,20 @@ const PurchaseOrders = () => {
             <div className="flex gap-2">
               <div className="relative">
                 <Search className="h-4 w-4 absolute left-3 top-3 text-gray-400" />
-                <Input placeholder="Search orders..." className="pl-10 w-64" />
+                <Input 
+                  placeholder="Search orders..." 
+                  className="pl-10 w-64"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </div>
-              <Button variant="outline">Filter</Button>
-              <Button variant="outline">Export</Button>
+              <Button variant="outline" onClick={handleFilter}>
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+              <Button variant="outline" onClick={handleExport}>
+                Export
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -551,7 +768,7 @@ const PurchaseOrders = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {purchaseOrders.map((order) => (
+              {filteredOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">{order.orderNo}</TableCell>
                   <TableCell>{order.vendor}</TableCell>
@@ -568,12 +785,13 @@ const PurchaseOrders = () => {
                       <SelectContent>
                         <SelectItem value="Pending">Pending</SelectItem>
                         <SelectItem value="Approved">Approved</SelectItem>
+                        <SelectItem value="Confirmed">Confirmed</SelectItem>
                         <SelectItem value="Delivered">Delivered</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <div className="flex gap-2">
+                    <div className="flex gap-1">
                       <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)} title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -583,6 +801,11 @@ const PurchaseOrders = () => {
                       <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)} title="Delete">
                         <Trash2 className="h-4 w-4" />
                       </Button>
+                      {(order.status === "Confirmed" || order.status === "Delivered") && (
+                        <Button variant="outline" size="sm" onClick={() => handleConvertToBill(order)} title="Convert to Bill">
+                          <FileText className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 </TableRow>
@@ -594,7 +817,7 @@ const PurchaseOrders = () => {
 
       {/* View Order Dialog */}
       <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Purchase Order Details</DialogTitle>
           </DialogHeader>
@@ -618,22 +841,23 @@ const PurchaseOrders = () => {
               {/* Vendor and Order Info */}
               <div className="grid grid-cols-2 gap-8">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Vendor Details</h3>
+                  <h3 className="font-semibold text-gray-900 mb-3">Vendor Details</h3>
                   <div className="space-y-1">
-                    <p className="font-medium">{selectedOrder.vendor}</p>
-                    <p>Vendor Address Line 1</p>
+                    <p className="font-medium">{selectedOrder.vendorDetails?.name || selectedOrder.vendor}</p>
+                    <p>{selectedOrder.vendorDetails?.address || "Vendor Address Line 1"}</p>
                     <p>Vendor Address Line 2</p>
-                    <p>Phone: +91 9876543210</p>
-                    <p>Email: vendor@example.com</p>
+                    <p>Phone: {selectedOrder.vendorDetails?.phone || "+91 9876543210"}</p>
+                    <p>Email: {selectedOrder.vendorDetails?.email || "vendor@example.com"}</p>
+                    <p>GST: {selectedOrder.vendorDetails?.gst || "27AABCT1332L1ZZ"}</p>
                   </div>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Order Details</h3>
+                  <h3 className="font-semibold text-gray-900 mb-3">Order Details</h3>
                   <div className="space-y-1">
                     <p><span className="font-medium">Order Date:</span> {selectedOrder.date}</p>
                     <p><span className="font-medium">Order No:</span> {selectedOrder.orderNo}</p>
-                    <p><span className="font-medium">Reference:</span> {selectedOrder.reference || "N/A"}</p>
-                    <p><span className="font-medium">Expected Delivery:</span> {selectedOrder.expectedDelivery || "N/A"}</p>
+                    <p><span className="font-medium">Reference:</span> {selectedOrder.reference || "REF-001"}</p>
+                    <p><span className="font-medium">Expected Delivery:</span> {selectedOrder.expectedDelivery || "2024-02-01"}</p>
                     <p><span className="font-medium">Payment Terms:</span> {selectedOrder.paymentTerms || "Due on Receipt"}</p>
                     <p><span className="font-medium">Status:</span> {selectedOrder.status}</p>
                   </div>
@@ -664,7 +888,7 @@ const PurchaseOrders = () => {
                     {selectedOrder.items?.map((item, index) => (
                       <TableRow key={index}>
                         <TableCell className="font-medium">{item.product}</TableCell>
-                        <TableCell>{item.account || "N/A"}</TableCell>
+                        <TableCell>{item.account || "Inventory"}</TableCell>
                         <TableCell className="text-center">{item.quantity}</TableCell>
                         <TableCell className="text-right">₹{item.rate.toLocaleString()}</TableCell>
                         <TableCell className="text-right">₹{item.amount.toLocaleString()}</TableCell>
@@ -696,9 +920,22 @@ const PurchaseOrders = () => {
               )}
               
               <div className="flex gap-2 pt-4">
-                <Button onClick={() => handleApproveOrder(selectedOrder)}>
-                  Approve Order
-                </Button>
+                {selectedOrder.status === "Pending" && (
+                  <Button onClick={() => handleApproveOrder(selectedOrder)}>
+                    Approve Order
+                  </Button>
+                )}
+                {selectedOrder.status === "Approved" && (
+                  <Button onClick={() => handleConfirmOrder(selectedOrder)}>
+                    Confirm Order
+                  </Button>
+                )}
+                {(selectedOrder.status === "Confirmed" || selectedOrder.status === "Delivered") && (
+                  <Button onClick={() => handleConvertToBill(selectedOrder)}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Convert to Bill
+                  </Button>
+                )}
                 <Button variant="outline" onClick={() => {
                   setIsViewDialogOpen(false);
                   handleEditOrder(selectedOrder);
@@ -724,7 +961,7 @@ const PurchaseOrders = () => {
 
       {/* Edit Order Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Purchase Order</DialogTitle>
           </DialogHeader>
@@ -756,8 +993,7 @@ const PurchaseOrders = () => {
               </div>
             </div>
 
-            {/* Order Details */}
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-4 gap-4">
               <div>
                 <label className="text-sm font-medium text-red-500">Purchase Order#*</label>
                 <Input 
@@ -782,9 +1018,6 @@ const PurchaseOrders = () => {
                   onChange={(e) => setOrderForm({...orderForm, date: e.target.value})}
                 />
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-medium">Expected Delivery Date</label>
                 <Input 
@@ -793,6 +1026,9 @@ const PurchaseOrders = () => {
                   onChange={(e) => setOrderForm({...orderForm, expectedDelivery: e.target.value})}
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
               <div>
                 <label className="text-sm font-medium">Payment Terms</label>
                 <Select value={orderForm.paymentTerms} onValueChange={(value) => setOrderForm({...orderForm, paymentTerms: value})}>
@@ -807,9 +1043,23 @@ const PurchaseOrders = () => {
                   </SelectContent>
                 </Select>
               </div>
+              <div>
+                <label className="text-sm font-medium">Shipment Preference</label>
+                <Select value={orderForm.shipmentPreference} onValueChange={(value) => setOrderForm({...orderForm, shipmentPreference: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose the shipment preference or type to add" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Standard Shipping">Standard Shipping</SelectItem>
+                    <SelectItem value="Express Shipping">Express Shipping</SelectItem>
+                    <SelectItem value="Heavy Freight">Heavy Freight</SelectItem>
+                    <SelectItem value="Air Freight">Air Freight</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
-            {/* Item Table */}
+            {/* Item Table - Same as create dialog */}
             <div>
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-semibold">Item Table</h3>
@@ -823,12 +1073,13 @@ const PurchaseOrders = () => {
                 <Table>
                   <TableHeader>
                     <TableRow className="bg-gray-50">
-                      <TableHead className="w-[30%]">ITEM DETAILS</TableHead>
-                      <TableHead className="w-[20%]">ACCOUNT</TableHead>
-                      <TableHead className="w-[12%]">QUANTITY</TableHead>
-                      <TableHead className="w-[12%]">RATE</TableHead>
-                      <TableHead className="w-[12%]">AMOUNT</TableHead>
-                      <TableHead className="w-[14%]">ACTION</TableHead>
+                      <TableHead className="w-[25%]">ITEM DETAILS</TableHead>
+                      <TableHead className="w-[15%]">ACCOUNT</TableHead>
+                      <TableHead className="w-[10%]">QUANTITY</TableHead>
+                      <TableHead className="w-[10%]">RATE</TableHead>
+                      <TableHead className="w-[10%]">TAX</TableHead>
+                      <TableHead className="w-[15%]">AMOUNT</TableHead>
+                      <TableHead className="w-[15%]">ACTION</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -863,7 +1114,7 @@ const PurchaseOrders = () => {
                             type="number"
                             value={item.quantity}
                             onChange={(e) => updateItem(index, 'quantity', e.target.value)}
-                            placeholder="1.00"
+                            placeholder="1"
                             className="border-0 focus:ring-0"
                           />
                         </TableCell>
@@ -872,13 +1123,30 @@ const PurchaseOrders = () => {
                             type="number"
                             value={item.rate}
                             onChange={(e) => updateItem(index, 'rate', e.target.value)}
-                            placeholder="0.00"
+                            placeholder="0"
                             className="border-0 focus:ring-0"
                           />
                         </TableCell>
                         <TableCell>
+                          <Select 
+                            value={item.tax} 
+                            onValueChange={(value) => updateItem(index, 'tax', value)}
+                          >
+                            <SelectTrigger className="border-0 focus:ring-0">
+                              <SelectValue placeholder="Select a Tax" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="GST@0%">GST@0%</SelectItem>
+                              <SelectItem value="GST@5%">GST@5%</SelectItem>
+                              <SelectItem value="GST@12%">GST@12%</SelectItem>
+                              <SelectItem value="GST@18%">GST@18%</SelectItem>
+                              <SelectItem value="GST@28%">GST@28%</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
                           <span className="text-lg font-semibold">
-                            ₹{item.amount?.toFixed(2) || '0.00'}
+                            {item.amount?.toFixed(2) || '0.00'}
                           </span>
                         </TableCell>
                         <TableCell>
@@ -902,14 +1170,18 @@ const PurchaseOrders = () => {
             {/* Order Summary */}
             <div className="border-t pt-4">
               <div className="flex justify-end">
-                <div className="w-64 space-y-2">
+                <div className="w-80 space-y-3">
                   <div className="flex justify-between">
                     <span>Sub Total:</span>
                     <span>₹{subtotal.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span>Discount:</span>
-                    <span>₹0.00</span>
+                    <div className="flex items-center gap-2">
+                      <Input type="number" defaultValue="0" className="w-16 h-8" />
+                      <span>%</span>
+                      <span>₹{discount.toFixed(2)}</span>
+                    </div>
                   </div>
                   <div className="flex justify-between font-bold text-lg border-t pt-2">
                     <span>Total:</span>
