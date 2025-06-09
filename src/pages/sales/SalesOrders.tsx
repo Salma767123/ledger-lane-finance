@@ -37,7 +37,7 @@ const SalesOrders = () => {
 
   const calculateItemAmount = (quantity, rate, discount = 0) => {
     const baseAmount = parseFloat(quantity || "0") * parseFloat(rate || "0");
-    const discountAmount = baseAmount * (parseFloat(discount) / 100);
+    const discountAmount = baseAmount * (parseFloat(discount.toString()) / 100);
     return baseAmount - discountAmount;
   };
 
