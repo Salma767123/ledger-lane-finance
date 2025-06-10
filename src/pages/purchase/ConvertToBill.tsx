@@ -38,8 +38,8 @@ const ConvertToBill = () => {
     items: poData.items.map(item => ({
       ...item,
       selected: true,
-      billQuantity: item.quantity,
-      billRate: item.rate,
+      billQuantity: item.quantity.toString(),
+      billRate: item.rate.toString(),
       billAmount: item.amount
     }))
   });
@@ -71,6 +71,24 @@ const ConvertToBill = () => {
 
   const generateBillNumber = () => {
     return `BILL-${(Math.floor(Math.random() * 1000) + 1).toString().padStart(3, '0')}`;
+  };
+
+  const handleSaveAsDraft = () => {
+    const selectedItems = billForm.items.filter(item => item.selected);
+    
+    if (selectedItems.length === 0) {
+      toast({
+        title: "Error",
+        description: "Please select at least one item to save as draft.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    toast({
+      title: "Draft Saved",
+      description: `Bill draft ${billForm.billNo || generateBillNumber()} has been saved.`,
+    });
   };
 
   const handleConvertToBill = () => {
@@ -296,12 +314,7 @@ const ConvertToBill = () => {
             <Button variant="outline" onClick={() => navigate("/purchase/orders")}>
               Cancel
             </Button>
-            <Button variant="outline" onClick={() => {
-              toast({
-                title: "Draft Saved",
-                description: "Bill has been saved as draft."
-              });
-            }}>
+            <Button variant="outline" onClick={handleSaveAsDraft}>
               <Save className="h-4 w-4 mr-2" />
               Save as Draft
             </Button>

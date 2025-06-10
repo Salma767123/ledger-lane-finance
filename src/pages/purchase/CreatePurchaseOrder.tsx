@@ -71,23 +71,54 @@ const CreatePurchaseOrder = () => {
     return `PO-${(Math.floor(Math.random() * 1000) + 1).toString().padStart(3, '0')}`;
   };
 
-  const handleCreateOrder = (status = "Draft") => {
-    if (orderForm.vendor && orderForm.date && orderForm.items.some(item => item.product)) {
-      const { total } = calculateTotals();
-      
-      toast({
-        title: "Purchase Order Created",
-        description: `Order has been created with status: ${status}`,
-      });
-      
-      navigate("/purchase/orders");
-    } else {
+  const validateForm = () => {
+    if (!orderForm.vendor) {
       toast({
         title: "Error",
-        description: "Please fill in all required fields.",
+        description: "Please select a vendor.",
         variant: "destructive"
       });
+      return false;
     }
+    if (!orderForm.date) {
+      toast({
+        title: "Error",
+        description: "Please select a date.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    if (!orderForm.items.some(item => item.product)) {
+      toast({
+        title: "Error",
+        description: "Please add at least one item.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handleSaveAsDraft = () => {
+    if (!validateForm()) return;
+    
+    toast({
+      title: "Draft Saved",
+      description: "Purchase order has been saved as draft.",
+    });
+    
+    navigate("/purchase/orders");
+  };
+
+  const handleSaveAndSend = () => {
+    if (!validateForm()) return;
+    
+    toast({
+      title: "Purchase Order Created",
+      description: "Purchase order has been created and sent to vendor.",
+    });
+    
+    navigate("/purchase/orders");
   };
 
   const { subtotal, discount, tax, total } = calculateTotals();
@@ -353,11 +384,11 @@ const CreatePurchaseOrder = () => {
             <Button variant="outline" onClick={() => navigate("/purchase/orders")}>
               Cancel
             </Button>
-            <Button variant="outline" onClick={() => handleCreateOrder("Draft")}>
+            <Button variant="outline" onClick={handleSaveAsDraft}>
               <Save className="h-4 w-4 mr-2" />
               Save as Draft
             </Button>
-            <Button onClick={() => handleCreateOrder("Open")}>
+            <Button onClick={handleSaveAndSend}>
               Save and Send
             </Button>
           </div>

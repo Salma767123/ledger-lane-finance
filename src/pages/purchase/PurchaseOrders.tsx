@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -114,10 +113,31 @@ const PurchaseOrders = () => {
   };
 
   const handleEditOrder = (order) => {
+    // Check if order can be edited based on status
+    if (order.status === "Billed" || order.status === "Closed" || order.status === "Cancelled") {
+      toast({
+        title: "Cannot Edit Order",
+        description: `Orders with status "${order.status}" cannot be edited.`,
+        variant: "destructive"
+      });
+      return;
+    }
     navigate(`/purchase/orders/edit/${order.id}`);
   };
 
   const handleDeleteOrder = (orderId) => {
+    const order = purchaseOrders.find(o => o.id === orderId);
+    
+    // Check if order can be deleted based on status
+    if (order && (order.status === "Billed" || order.status === "Closed")) {
+      toast({
+        title: "Cannot Delete Order",
+        description: `Orders with status "${order.status}" cannot be deleted.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setPurchaseOrders(purchaseOrders.filter(order => order.id !== orderId));
     toast({
       title: "Order Deleted",
@@ -126,6 +146,18 @@ const PurchaseOrders = () => {
   };
 
   const handleStatusChange = (orderId, newStatus) => {
+    const order = purchaseOrders.find(o => o.id === orderId);
+    
+    // Special validation for "Closed" status
+    if (newStatus === "Closed" && order && order.status !== "Billed") {
+      toast({
+        title: "Cannot Close Order",
+        description: "Only billed orders can be closed when payment is fully settled.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setPurchaseOrders(purchaseOrders.map(order => 
       order.id === orderId ? { ...order, status: newStatus } : order
     ));
@@ -136,12 +168,12 @@ const PurchaseOrders = () => {
   };
 
   const handleConvertToBill = (order) => {
-    if (order.status === "Open" || order.status === "Closed") {
+    if (order.status === "Open") {
       navigate(`/purchase/convert-to-bill/${order.id}`);
     } else {
       toast({
         title: "Cannot Convert",
-        description: "Only Open or Closed orders can be converted to bills.",
+        description: "Only Open orders can be converted to bills.",
         variant: "destructive"
       });
     }
@@ -302,13 +334,25 @@ const PurchaseOrders = () => {
                       <Button variant="outline" size="sm" onClick={() => handleViewOrder(order)} title="View">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEditOrder(order)} title="Edit">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleEditOrder(order)} 
+                        title="Edit"
+                        disabled={order.status === "Billed" || order.status === "Closed" || order.status === "Cancelled"}
+                      >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleDeleteOrder(order.id)} title="Delete">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDeleteOrder(order.id)} 
+                        title="Delete"
+                        disabled={order.status === "Billed" || order.status === "Closed"}
+                      >
                         <Trash2 className="h-4 w-4" />
                       </Button>
-                      {(order.status === "Open" || order.status === "Closed") && (
+                      {order.status === "Open" && (
                         <Button variant="outline" size="sm" onClick={() => handleConvertToBill(order)} title="Convert to Bill">
                           <FileText className="h-4 w-4" />
                         </Button>
@@ -463,3 +507,5 @@ const PurchaseOrders = () => {
 };
 
 export default PurchaseOrders;
+
+// ... keep existing code (rest of component)
