@@ -22,6 +22,8 @@ import CreditNotes from "./pages/sales/CreditNotes";
 import Vendors from "./pages/purchase/Vendors";
 import VendorDetail from "./pages/purchase/VendorDetail";
 import PurchaseOrders from "./pages/purchase/PurchaseOrders";
+import CreatePurchaseOrder from "./pages/purchase/CreatePurchaseOrder";
+import ConvertToBill from "./pages/purchase/ConvertToBill";
 import Bills from "./pages/purchase/Bills";
 import TransactionHistory from "./pages/purchase/TransactionHistory";
 import RecurringBills from "./pages/purchase/RecurringBills";
@@ -68,6 +70,9 @@ const App = () => (
                   <Route path="/purchase/vendors" element={<Vendors />} />
                   <Route path="/purchase/vendors/:vendorId" element={<VendorDetail />} />
                   <Route path="/purchase/orders" element={<PurchaseOrders />} />
+                  <Route path="/purchase/orders/create" element={<CreatePurchaseOrder />} />
+                  <Route path="/purchase/orders/edit/:orderId" element={<CreatePurchaseOrder />} />
+                  <Route path="/purchase/convert-to-bill/:orderId" element={<ConvertToBill />} />
                   <Route path="/purchase/bills" element={<Bills />} />
                   <Route path="/purchase/transactions" element={<TransactionHistory />} />
                   <Route path="/purchase/recurring-bills" element={<RecurringBills />} />
