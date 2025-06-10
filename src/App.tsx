@@ -74,6 +74,9 @@ const App = () => (
                   <Route path="/purchase/orders/edit/:orderId" element={<CreatePurchaseOrder />} />
                   <Route path="/purchase/convert-to-bill/:orderId" element={<ConvertToBill />} />
                   <Route path="/purchase/bills" element={<Bills />} />
+                  <Route path="/purchase/bills/create" element={<CreateBill />} />
+                  <Route path="/purchase/bills/edit/:billId" element={<CreateBill />} />
+                  <Route path="/purchase/bills/record-payment/:billId" element={<RecordPayment />} />
                   <Route path="/purchase/transactions" element={<TransactionHistory />} />
                   <Route path="/purchase/recurring-bills" element={<RecurringBills />} />
                   <Route path="/purchase/vendor-credits" element={<VendorCredits />} />
