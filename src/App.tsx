@@ -1,5 +1,6 @@
+
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QueryClient } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 
 // Dashboard
@@ -42,9 +43,11 @@ import Tax from "@/pages/Tax";
 import Settings from "@/pages/Settings";
 import NotFound from "@/pages/NotFound";
 
+const queryClient = new QueryClient();
+
 function App() {
   return (
-    <QueryClient>
+    <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -88,7 +91,7 @@ function App() {
         </Routes>
         <Toaster />
       </BrowserRouter>
-    </QueryClient>
+    </QueryClientProvider>
   );
 }
 
