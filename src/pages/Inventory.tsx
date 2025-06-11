@@ -1,37 +1,29 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Archive, Plus, Search, Package, TrendingUp, AlertTriangle, Edit, Trash2, Eye } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useState } from "react";
+import { ViewProductDialog } from "@/components/inventory/ViewProductDialog";
+import { EditProductDialog } from "@/components/inventory/EditProductDialog";
+
+interface Product {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  stock: number;
+  price: number;
+  status: string;
+}
 
 const Inventory = () => {
   const { toast } = useToast();
-
-  const handleEdit = (productId: string) => {
-    toast({
-      title: "Edit Product",
-      description: `Editing product ${productId}`,
-    });
-  };
-
-  const handleDelete = (productId: string) => {
-    toast({
-      title: "Delete Product",
-      description: `Product ${productId} deleted successfully`,
-      variant: "destructive",
-    });
-  };
-
-  const handleView = (productId: string) => {
-    toast({
-      title: "View Product",
-      description: `Viewing details for product ${productId}`,
-    });
-  };
-
-  const sampleProducts = [
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([
     {
       id: "1",
       name: "Laptop Dell Inspiron",
@@ -68,7 +60,36 @@ const Inventory = () => {
       price: 2500,
       status: "Out of Stock"
     }
-  ];
+  ]);
+
+  const handleView = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      setSelectedProduct(product);
+      setViewDialogOpen(true);
+    }
+  };
+
+  const handleEdit = (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      setSelectedProduct(product);
+      setEditDialogOpen(true);
+    }
+  };
+
+  const handleSaveEdit = (updatedProduct: Product) => {
+    setProducts(prev => prev.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+  };
+
+  const handleDelete = (productId: string) => {
+    setProducts(prev => prev.filter(p => p.id !== productId));
+    toast({
+      title: "Product Deleted",
+      description: `Product has been deleted successfully`,
+      variant: "destructive",
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -163,7 +184,7 @@ const Inventory = () => {
                 </tr>
               </thead>
               <tbody>
-                {sampleProducts.map((product) => (
+                {products.map((product) => (
                   <tr key={product.id} className="border-b hover:bg-gray-50">
                     <td className="p-4">{product.name}</td>
                     <td className="p-4">{product.sku}</td>
@@ -199,6 +220,19 @@ const Inventory = () => {
           </div>
         </CardContent>
       </Card>
+
+      <ViewProductDialog 
+        product={selectedProduct}
+        open={viewDialogOpen}
+        onOpenChange={setViewDialogOpen}
+      />
+
+      <EditProductDialog
+        product={selectedProduct}
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };

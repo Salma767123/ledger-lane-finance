@@ -7,8 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Separator } from "@/components/ui/separator";
-import { Package, Save, ArrowLeft } from "lucide-react";
+import { Package, Save, ArrowLeft, HelpCircle, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -26,159 +25,214 @@ const AddItem = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link to="/inventory">
           <Button variant="outline" size="sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Inventory
+            Back
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-          <Package className="h-8 w-8 text-blue-600" />
-          New Item
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-900">New Item</h1>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Basic Information */}
+        <Card>
+          <CardContent className="p-6 space-y-4">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-medium">Type</Label>
+                <HelpCircle className="h-4 w-4 text-gray-400" />
+              </div>
+              <RadioGroup value={itemType} onValueChange={setItemType} className="flex gap-6">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="goods" id="goods" />
+                  <Label htmlFor="goods" className="text-sm">Goods</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="service" id="service" />
+                  <Label htmlFor="service" className="text-sm">Service</Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="name" className="text-sm font-medium">Name*</Label>
+              </div>
+              <Input id="name" placeholder="" className="h-9" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="sku" className="text-sm font-medium">SKU</Label>
+                <HelpCircle className="h-4 w-4 text-gray-400" />
+              </div>
+              <Input id="sku" placeholder="" className="h-9" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="unit" className="text-sm font-medium">Unit</Label>
+                <HelpCircle className="h-4 w-4 text-gray-400" />
+              </div>
+              <Select>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pcs">Pieces (pcs)</SelectItem>
+                  <SelectItem value="kg">Kilograms (kg)</SelectItem>
+                  <SelectItem value="m">Meters (m)</SelectItem>
+                  <SelectItem value="l">Liters (l)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="hsn" className="text-sm font-medium">HSN Code</Label>
+              <div className="relative">
+                <Input id="hsn" placeholder="" className="h-9 pr-8" />
+                <Search className="h-4 w-4 absolute right-2 top-2.5 text-gray-400" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="tax-preference" className="text-sm font-medium">Tax Preference*</Label>
+              </div>
+              <Select defaultValue="taxable">
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="taxable">Taxable</SelectItem>
+                  <SelectItem value="non-taxable">Non-taxable</SelectItem>
+                  <SelectItem value="exempt">Exempt</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-medium">Esse</Label>
+                  <HelpCircle className="h-4 w-4 text-gray-400" />
+                </div>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm h-9">
+                    nihil
+                  </span>
+                  <Input placeholder="%" className="rounded-l-none h-9" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-medium">nemo*</Label>
+                  <HelpCircle className="h-4 w-4 text-gray-400" />
+                </div>
+                <Input placeholder="lure" className="h-9" />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label className="text-sm font-medium">sint</Label>
+                  <HelpCircle className="h-4 w-4 text-gray-400" />
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Checkbox id="nobis" />
+                  <Label htmlFor="nobis" className="text-sm">nobis</Label>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Sales & Purchase Information */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Basic Information */}
+          {/* Sales Information */}
           <Card>
-            <CardHeader>
-              <CardTitle>Basic Information</CardTitle>
+            <CardHeader className="pb-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="sales-info" defaultChecked />
+                <CardTitle className="text-lg text-blue-600">Sales Information</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <Label>Type *</Label>
-                <RadioGroup value={itemType} onValueChange={setItemType} className="flex gap-6">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="goods" id="goods" />
-                    <Label htmlFor="goods">Goods</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="service" id="service" />
-                    <Label htmlFor="service">Service</Label>
-                  </div>
-                </RadioGroup>
+              <div className="space-y-2">
+                <Label htmlFor="selling-price" className="text-sm font-medium">Selling Price*</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm h-9">
+                    INR
+                  </span>
+                  <Input id="selling-price" placeholder="0.00" className="rounded-l-none h-9" />
+                </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
-                <Input id="name" placeholder="Enter item name" required />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="sku">SKU</Label>
-                <Input id="sku" placeholder="Enter SKU" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="unit">Unit</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select unit" />
+                <Label htmlFor="sales-account" className="text-sm font-medium">Account*</Label>
+                <Select defaultValue="19948">
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pcs">Pieces (pcs)</SelectItem>
-                    <SelectItem value="kg">Kilograms (kg)</SelectItem>
-                    <SelectItem value="m">Meters (m)</SelectItem>
-                    <SelectItem value="l">Liters (l)</SelectItem>
+                    <SelectItem value="19948">[ 19948 ] Sales</SelectItem>
+                    <SelectItem value="19949">[ 19949 ] Sales Revenue</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="hsn">HSN Code</Label>
-                <Input id="hsn" placeholder="Enter HSN code" />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="tax-preference">Tax Preference *</Label>
-                <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Taxable" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="taxable">Taxable</SelectItem>
-                    <SelectItem value="non-taxable">Non-taxable</SelectItem>
-                    <SelectItem value="exempt">Exempt</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="sales-description" className="text-sm font-medium">Description</Label>
+                <Textarea id="sales-description" placeholder="" rows={3} className="resize-none" />
               </div>
             </CardContent>
           </Card>
 
-          {/* Pricing Information */}
+          {/* Purchase Information */}
           <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Tax</CardTitle>
+            <CardHeader className="pb-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox id="purchase-info" defaultChecked />
+                <CardTitle className="text-lg text-blue-600">Purchase Information</CardTitle>
+              </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="selling-price">Selling Price *</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                      INR
-                    </span>
-                    <Input id="selling-price" placeholder="0.00" className="rounded-l-none" />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="cost-price">Cost Price *</Label>
-                  <div className="flex">
-                    <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                      INR
-                    </span>
-                    <Input id="cost-price" placeholder="0.00" className="rounded-l-none" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="sales-account">Account *</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="19948">[ 19948 ] Sales</SelectItem>
-                      <SelectItem value="19949">[ 19949 ] Sales Revenue</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="purchase-account">Account *</Label>
-                  <Select>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="28607">[ 28607 ] Cost of Goods Sold</SelectItem>
-                      <SelectItem value="28608">[ 28608 ] Purchase</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="space-y-2">
+                <Label htmlFor="cost-price" className="text-sm font-medium">Cost Price*</Label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm h-9">
+                    INR
+                  </span>
+                  <Input id="cost-price" placeholder="0.00" className="rounded-l-none h-9" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="sales-description">Description</Label>
-                <Textarea id="sales-description" placeholder="Enter sales description" rows={3} />
+                <Label htmlFor="purchase-account" className="text-sm font-medium">Account*</Label>
+                <Select defaultValue="28607">
+                  <SelectTrigger className="h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="28607">[ 28607 ] Cost of Goods Sold</SelectItem>
+                    <SelectItem value="28608">[ 28608 ] Purchase</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="purchase-description">Description</Label>
-                <Textarea id="purchase-description" placeholder="Enter purchase description" rows={3} />
+                <Label htmlFor="purchase-description" className="text-sm font-medium">Description</Label>
+                <Textarea id="purchase-description" placeholder="" rows={3} className="resize-none" />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="preferred-vendor">Preferred Vendor</Label>
+                <Label htmlFor="preferred-vendor" className="text-sm font-medium">Preferred Vendor</Label>
                 <Select>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select vendor" />
+                  <SelectTrigger className="h-9">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="vendor1">Vendor 1</SelectItem>
@@ -188,80 +242,41 @@ const AddItem = () => {
               </div>
             </CardContent>
           </Card>
-
-          {/* Tax Rates */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Default Tax Rates</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <h4 className="font-medium">Sales Information</h4>
-                  <div className="space-y-2">
-                    <Label>Intra State Tax Rate</Label>
-                    <div className="p-3 bg-gray-50 rounded border">
-                      <span className="text-sm">GST12 (12 %)</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Inter State Tax Rate</Label>
-                    <div className="p-3 bg-gray-50 rounded border">
-                      <span className="text-sm">IGST12 (12 %)</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h4 className="font-medium">Purchase Information</h4>
-                  <div className="space-y-2">
-                    <Label>Intra State Tax Rate</Label>
-                    <div className="p-3 bg-gray-50 rounded border">
-                      <span className="text-sm">GST12 (12 %)</span>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>Inter State Tax Rate</Label>
-                    <div className="p-3 bg-gray-50 rounded border">
-                      <span className="text-sm">IGST12 (12 %)</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Additional Options */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Additional Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="track-inventory" />
-                  <Label htmlFor="track-inventory">Track inventory for this item</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="returnable" />
-                  <Label htmlFor="returnable">Returnable item</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox id="taxable" />
-                  <Label htmlFor="taxable">Taxable</Label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
-        <div className="flex justify-end gap-4 mt-6">
+        {/* Default Tax Rates */}
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg">Default Tax Rates</CardTitle>
+              <HelpCircle className="h-4 w-4 text-gray-400" />
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Intra State Tax Rate</Label>
+                <div className="p-2 bg-gray-50 rounded border text-sm">
+                  GST12 (12 %)
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Inter State Tax Rate</Label>
+                <div className="p-2 bg-gray-50 rounded border text-sm">
+                  IGST12 (12 %)
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-3 pt-4">
           <Link to="/inventory">
             <Button variant="outline">Cancel</Button>
           </Link>
           <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
             <Save className="h-4 w-4 mr-2" />
-            Save Item
+            Save
           </Button>
         </div>
       </form>
