@@ -26,6 +26,14 @@ const AddItem = () => {
     });
   };
 
+  const handleSalesInfoChange = (checked: boolean | "indeterminate") => {
+    setSalesInfoEnabled(checked === true);
+  };
+
+  const handlePurchaseInfoChange = (checked: boolean | "indeterminate") => {
+    setPurchaseInfoEnabled(checked === true);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-5xl mx-auto space-y-6">
@@ -150,6 +158,16 @@ const AddItem = () => {
                     <SelectItem value="zero-rated">Zero Rated</SelectItem>
                     <SelectItem value="out-of-scope">Out of Scope</SelectItem>
                     <SelectItem value="reverse-charge">Reverse Charge</SelectItem>
+                    <SelectItem value="gst-0">GST 0%</SelectItem>
+                    <SelectItem value="gst-5">GST 5%</SelectItem>
+                    <SelectItem value="gst-12">GST 12%</SelectItem>
+                    <SelectItem value="gst-18">GST 18%</SelectItem>
+                    <SelectItem value="gst-28">GST 28%</SelectItem>
+                    <SelectItem value="igst-0">IGST 0%</SelectItem>
+                    <SelectItem value="igst-5">IGST 5%</SelectItem>
+                    <SelectItem value="igst-12">IGST 12%</SelectItem>
+                    <SelectItem value="igst-18">IGST 18%</SelectItem>
+                    <SelectItem value="igst-28">IGST 28%</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -165,7 +183,7 @@ const AddItem = () => {
                   <Checkbox 
                     id="sales-info" 
                     checked={salesInfoEnabled}
-                    onCheckedChange={setSalesInfoEnabled}
+                    onCheckedChange={handleSalesInfoChange}
                   />
                   <CardTitle className="text-lg text-blue-700">Sales Information</CardTitle>
                 </div>
@@ -226,7 +244,7 @@ const AddItem = () => {
                   <Checkbox 
                     id="purchase-info" 
                     checked={purchaseInfoEnabled}
-                    onCheckedChange={setPurchaseInfoEnabled}
+                    onCheckedChange={handlePurchaseInfoChange}
                   />
                   <CardTitle className="text-lg text-green-700">Purchase Information</CardTitle>
                 </div>

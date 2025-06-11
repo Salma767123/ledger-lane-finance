@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,19 +6,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Dialog, 
   DialogContent, 
+  DialogDescription,
   DialogHeader, 
   DialogTitle, 
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Book, Plus, Search, TrendingUp, TrendingDown, DollarSign, Wallet } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Book, Plus, Search, TrendingUp, TrendingDown, DollarSign, Wallet, CalendarIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const GeneralLedger = () => {
   const { toast } = useToast();
   const [isAccountDialogOpen, setIsAccountDialogOpen] = useState(false);
   const [isLedgerViewOpen, setIsLedgerViewOpen] = useState(false);
   const [selectedLedgerAccount, setSelectedLedgerAccount] = useState("");
+  const [startDate, setStartDate] = useState<Date>();
+  const [endDate, setEndDate] = useState<Date>();
   
   const [accounts, setAccounts] = useState([
     { id: 1, name: "Cash in Hand", code: "1001", balance: "₹50,000", type: "Current Asset", category: "Assets" },
@@ -51,6 +57,50 @@ const GeneralLedger = () => {
     { id: 4, date: "2024-01-25", description: "Customer Payment", ref: "CP001", debit: "15,000", credit: "", balance: "85,000" }
   ]);
 
+  const accountTypes = {
+    Assets: [
+      "Current Asset",
+      "Fixed Asset", 
+      "Intangible Asset",
+      "Investment",
+      "Inventory",
+      "Prepaid Expense",
+      "Other Asset"
+    ],
+    Liabilities: [
+      "Current Liability",
+      "Long-term Liability",
+      "Accrued Liability",
+      "Deferred Revenue",
+      "Other Liability"
+    ],
+    Equity: [
+      "Owner's Equity",
+      "Retained Earnings",
+      "Common Stock",
+      "Preferred Stock",
+      "Treasury Stock",
+      "Additional Paid-in Capital"
+    ],
+    Revenue: [
+      "Sales Revenue",
+      "Service Revenue",
+      "Interest Revenue",
+      "Rental Revenue",
+      "Other Revenue"
+    ],
+    Expenses: [
+      "Operating Expense",
+      "Cost of Goods Sold",
+      "Administrative Expense",
+      "Selling Expense",
+      "Interest Expense",
+      "Depreciation Expense",
+      "Tax Expense",
+      "Other Expense"
+    ]
+  };
+
   const handleCreateAccount = () => {
     if (accountData.name && accountData.type && accountData.category) {
       const newAccount = {
@@ -77,7 +127,7 @@ const GeneralLedger = () => {
     }
   };
 
-  const handleViewLedger = (accountName) => {
+  const handleViewLedger = (accountName: string) => {
     setSelectedLedgerAccount(accountName);
     setIsLedgerViewOpen(true);
   };
@@ -94,7 +144,7 @@ const GeneralLedger = () => {
     credit: ['Liabilities', 'Equity', 'Revenue'].includes(account.category) ? account.balance : '-'
   }));
 
-  const AccountTable = ({ data, title }) => (
+  const AccountTable = ({ data, title }: { data: any[], title: string }) => (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">{title}</h3>
       <div className="overflow-x-auto">
@@ -146,9 +196,12 @@ const GeneralLedger = () => {
               Add Account
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-md">
             <DialogHeader>
               <DialogTitle>Create New Account</DialogTitle>
+              <DialogDescription>
+                Add a new account to your chart of accounts
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -161,7 +214,7 @@ const GeneralLedger = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Account Category *</label>
-                <Select value={accountData.category} onValueChange={(value) => setAccountData({...accountData, category: value})}>
+                <Select value={accountData.category} onValueChange={(value) => setAccountData({...accountData, category: value, type: ""})}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -176,18 +229,14 @@ const GeneralLedger = () => {
               </div>
               <div>
                 <label className="text-sm font-medium">Account Type *</label>
-                <Select value={accountData.type} onValueChange={(value) => setAccountData({...accountData, type: value})}>
+                <Select value={accountData.type} onValueChange={(value) => setAccountData({...accountData, type: value})} disabled={!accountData.category}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select account type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Current Asset">Current Asset</SelectItem>
-                    <SelectItem value="Fixed Asset">Fixed Asset</SelectItem>
-                    <SelectItem value="Current Liability">Current Liability</SelectItem>
-                    <SelectItem value="Long-term Liability">Long-term Liability</SelectItem>
-                    <SelectItem value="Equity">Equity</SelectItem>
-                    <SelectItem value="Revenue">Revenue</SelectItem>
-                    <SelectItem value="Operating Expense">Operating Expense</SelectItem>
+                    {accountData.category && accountTypes[accountData.category as keyof typeof accountTypes]?.map((type) => (
+                      <SelectItem key={type} value={type}>{type}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -353,11 +402,69 @@ const GeneralLedger = () => {
       </Card>
 
       <Dialog open={isLedgerViewOpen} onOpenChange={setIsLedgerViewOpen}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Account Ledger - {selectedLedgerAccount}</DialogTitle>
+            <DialogDescription>
+              View transaction history for the selected account
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Date Filter */}
+            <div className="flex gap-4 items-center">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">From Date</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[280px] justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP") : <span>Pick start date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">To Date</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[280px] justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "PPP") : <span>Pick end date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <Button className="mt-6">Filter</Button>
+            </div>
+            
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
