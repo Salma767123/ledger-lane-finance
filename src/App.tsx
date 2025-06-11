@@ -37,6 +37,7 @@ import NotFound from "./pages/NotFound";
 import Banking from "./pages/Banking";
 import InventorySettings from "./pages/settings/InventorySettings";
 import AccountSettings from "./pages/settings/AccountSettings";
+import AddItem from "./pages/inventory/AddItem";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
                 <Routes>
                   <Route path="/" element={<Dashboard />} />
                   <Route path="/inventory" element={<Inventory />} />
+                  <Route path="/inventory/add-item" element={<AddItem />} />
                   <Route path="/sales/customers" element={<Customers />} />
                   <Route path="/sales/customers/:customerId" element={<CustomerDetail />} />
                   <Route path="/sales/estimates" element={<Estimates />} />

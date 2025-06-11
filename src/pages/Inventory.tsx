@@ -2,9 +2,74 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Archive, Plus, Search, Package, TrendingUp, AlertTriangle } from "lucide-react";
+import { Archive, Plus, Search, Package, TrendingUp, AlertTriangle, Edit, Trash2, Eye } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Inventory = () => {
+  const { toast } = useToast();
+
+  const handleEdit = (productId: string) => {
+    toast({
+      title: "Edit Product",
+      description: `Editing product ${productId}`,
+    });
+  };
+
+  const handleDelete = (productId: string) => {
+    toast({
+      title: "Delete Product",
+      description: `Product ${productId} deleted successfully`,
+      variant: "destructive",
+    });
+  };
+
+  const handleView = (productId: string) => {
+    toast({
+      title: "View Product",
+      description: `Viewing details for product ${productId}`,
+    });
+  };
+
+  const sampleProducts = [
+    {
+      id: "1",
+      name: "Laptop Dell Inspiron",
+      sku: "SKU001",
+      category: "Electronics",
+      stock: 150,
+      price: 45000,
+      status: "In Stock"
+    },
+    {
+      id: "2",
+      name: "Office Chair",
+      sku: "SKU002",
+      category: "Furniture",
+      stock: 75,
+      price: 8500,
+      status: "In Stock"
+    },
+    {
+      id: "3",
+      name: "Wireless Mouse",
+      sku: "SKU003",
+      category: "Electronics",
+      stock: 8,
+      price: 1200,
+      status: "Low Stock"
+    },
+    {
+      id: "4",
+      name: "Monitor Stand",
+      sku: "SKU004",
+      category: "Electronics",
+      stock: 0,
+      price: 2500,
+      status: "Out of Stock"
+    }
+  ];
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -12,10 +77,12 @@ const Inventory = () => {
           <Archive className="h-8 w-8 text-blue-600" />
           Inventory Management
         </h1>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Product
-        </Button>
+        <Link to="/inventory/add-item">
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Item
+          </Button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -96,17 +163,37 @@ const Inventory = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr className="border-b hover:bg-gray-50">
-                  <td className="p-4">Product A</td>
-                  <td className="p-4">SKU001</td>
-                  <td className="p-4">Electronics</td>
-                  <td className="p-4">150</td>
-                  <td className="p-4">₹2,500</td>
-                  <td className="p-4"><span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">In Stock</span></td>
-                  <td className="p-4">
-                    <Button variant="outline" size="sm">Edit</Button>
-                  </td>
-                </tr>
+                {sampleProducts.map((product) => (
+                  <tr key={product.id} className="border-b hover:bg-gray-50">
+                    <td className="p-4">{product.name}</td>
+                    <td className="p-4">{product.sku}</td>
+                    <td className="p-4">{product.category}</td>
+                    <td className="p-4">{product.stock}</td>
+                    <td className="p-4">₹{product.price.toLocaleString()}</td>
+                    <td className="p-4">
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        product.status === 'In Stock' ? 'bg-green-100 text-green-800' :
+                        product.status === 'Low Stock' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-red-100 text-red-800'
+                      }`}>
+                        {product.status}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleView(product.id)}>
+                          <Eye className="h-3 w-3" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(product.id)}>
+                          <Edit className="h-3 w-3" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleDelete(product.id)}>
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
