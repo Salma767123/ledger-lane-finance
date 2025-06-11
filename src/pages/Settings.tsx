@@ -1,7 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings, Users, Database, Tag, Building, Shield, Bell, Palette } from "lucide-react";
+import { Settings, Users, Database, Tag, Building, Shield, Bell, Palette, Package, Book } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const SettingsPage = () => {
   return (
@@ -50,6 +51,36 @@ const SettingsPage = () => {
           <CardContent>
             <p className="text-gray-600 mb-4">Set up tax rates, GST settings, and tax preferences.</p>
             <Button variant="outline" className="w-full">Configure Taxes</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-blue-600" />
+              Inventory Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">Configure inventory preferences, categories, units, and warehouses.</p>
+            <Link to="/settings/inventory">
+              <Button variant="outline" className="w-full">Inventory Settings</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Book className="h-5 w-5 text-green-600" />
+              Account Settings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-gray-600 mb-4">Manage chart of accounts, fiscal year, and accounting preferences.</p>
+            <Link to="/settings/accounts">
+              <Button variant="outline" className="w-full">Account Settings</Button>
+            </Link>
           </CardContent>
         </Card>
 
