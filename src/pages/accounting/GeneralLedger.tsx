@@ -28,26 +28,26 @@ const GeneralLedger = () => {
   const [endDate, setEndDate] = useState<Date>();
   
   const [accounts, setAccounts] = useState([
-    { id: 1, name: "Cash in Hand", code: "1001", balance: "₹50,000", type: "Current Assets", category: "Assets" },
-    { id: 2, name: "Bank Account - SBI", code: "1002", balance: "₹2,50,000", type: "Current Assets", category: "Assets" },
-    { id: 3, name: "Accounts Receivable", code: "1101", balance: "₹1,20,000", type: "Current Assets", category: "Assets" },
-    { id: 4, name: "Inventory", code: "1201", balance: "₹85,000", type: "Current Assets", category: "Assets" },
-    { id: 5, name: "Prepaid Insurance", code: "1301", balance: "₹15,000", type: "Current Assets", category: "Assets" },
+    { id: 1, name: "Cash in Hand", code: "1001", balance: "₹50,000", type: "Cash", category: "Assets" },
+    { id: 2, name: "Bank Account - SBI", code: "1002", balance: "₹2,50,000", type: "Bank", category: "Assets" },
+    { id: 3, name: "Accounts Receivable", code: "1101", balance: "₹1,20,000", type: "Accounts Receivable", category: "Assets" },
+    { id: 4, name: "Inventory", code: "1201", balance: "₹85,000", type: "Inventory", category: "Assets" },
+    { id: 5, name: "Prepaid Insurance", code: "1301", balance: "₹15,000", type: "Prepaid Expenses", category: "Assets" },
     { id: 6, name: "Office Equipment", code: "1501", balance: "₹3,00,000", type: "Fixed Assets", category: "Assets" },
     { id: 7, name: "Buildings", code: "1502", balance: "₹15,00,000", type: "Fixed Assets", category: "Assets" },
-    { id: 8, name: "Accumulated Depreciation - Equipment", code: "1601", balance: "₹50,000", type: "Contra Assets", category: "Assets" },
-    { id: 9, name: "Accounts Payable", code: "2001", balance: "₹75,000", type: "Current Liabilities", category: "Liabilities" },
-    { id: 10, name: "Accrued Expenses", code: "2101", balance: "₹25,000", type: "Current Liabilities", category: "Liabilities" },
-    { id: 11, name: "Bank Loan", code: "2501", balance: "₹5,00,000", type: "Long-term Liabilities", category: "Liabilities" },
-    { id: 12, name: "Owner's Capital", code: "3001", balance: "₹10,00,000", type: "Owner's Equity", category: "Equity" },
+    { id: 8, name: "Accumulated Depreciation - Equipment", code: "1601", balance: "₹50,000", type: "Fixed Assets", category: "Assets" },
+    { id: 9, name: "Accounts Payable", code: "2001", balance: "₹75,000", type: "Accounts Payable", category: "Liabilities" },
+    { id: 10, name: "Accrued Expenses", code: "2101", balance: "₹25,000", type: "Accrued Expenses", category: "Liabilities" },
+    { id: 11, name: "Bank Loan", code: "2501", balance: "₹5,00,000", type: "Loans Payable", category: "Liabilities" },
+    { id: 12, name: "Owner's Capital", code: "3001", balance: "₹10,00,000", type: "Capital Account", category: "Equity" },
     { id: 13, name: "Retained Earnings", code: "3101", balance: "₹3,50,000", type: "Retained Earnings", category: "Equity" },
-    { id: 14, name: "Sales Revenue", code: "4001", balance: "₹12,50,000", type: "Operating Revenue", category: "Revenue" },
-    { id: 15, name: "Service Revenue", code: "4101", balance: "₹2,85,000", type: "Operating Revenue", category: "Revenue" },
-    { id: 16, name: "Cost of Goods Sold", code: "5001", balance: "₹7,50,000", type: "Cost of Sales", category: "Expenses" },
-    { id: 17, name: "Salaries Expense", code: "5201", balance: "₹4,20,000", type: "Operating Expenses", category: "Expenses" },
-    { id: 18, name: "Rent Expense", code: "5301", balance: "₹1,20,000", type: "Operating Expenses", category: "Expenses" },
-    { id: 19, name: "Utilities Expense", code: "5401", balance: "₹45,000", type: "Operating Expenses", category: "Expenses" },
-    { id: 20, name: "Depreciation Expense", code: "5501", balance: "₹75,000", type: "Operating Expenses", category: "Expenses" }
+    { id: 14, name: "Sales Revenue", code: "4001", balance: "₹12,50,000", type: "Sales", category: "Income / Revenue" },
+    { id: 15, name: "Service Revenue", code: "4101", balance: "₹2,85,000", type: "Service Income", category: "Income / Revenue" },
+    { id: 16, name: "Cost of Goods Sold", code: "5001", balance: "₹7,50,000", type: "Office Expenses", category: "Expenses" },
+    { id: 17, name: "Salaries Expense", code: "5201", balance: "₹4,20,000", type: "Salaries & Wages", category: "Expenses" },
+    { id: 18, name: "Rent Expense", code: "5301", balance: "₹1,20,000", type: "Rent", category: "Expenses" },
+    { id: 19, name: "Utilities Expense", code: "5401", balance: "₹45,000", type: "Utilities", category: "Expenses" },
+    { id: 20, name: "Depreciation Expense", code: "5501", balance: "₹75,000", type: "Depreciation", category: "Expenses" }
   ]);
   
   const [accountData, setAccountData] = useState({
@@ -67,49 +67,70 @@ const GeneralLedger = () => {
 
   const accountTypes = {
     Assets: [
-      "Current Assets",
-      "Fixed Assets", 
-      "Intangible Assets",
+      "Cash",
+      "Bank",
+      "Accounts Receivable",
+      "Inventory",
+      "Fixed Assets",
+      "Prepaid Expenses",
+      "Advances (Employee/Supplier)",
+      "Deposits",
       "Investments",
-      "Contra Assets",
-      "Other Assets"
+      "Input GST",
+      "Input IGST",
+      "Input CGST",
+      "Input SGST",
+      "Input Cess"
     ],
     Liabilities: [
-      "Current Liabilities",
-      "Long-term Liabilities",
-      "Contingent Liabilities",
-      "Other Liabilities"
+      "Accounts Payable",
+      "Loans Payable",
+      "Accrued Expenses",
+      "GST Payable",
+      "IGST Payable",
+      "CGST Payable",
+      "SGST Payable",
+      "Cess Payable",
+      "TDS Payable",
+      "Salaries Payable",
+      "Advance from Customers",
+      "Unearned Revenue"
     ],
     Equity: [
-      "Owner's Equity",
+      "Capital Account",
       "Partner's Capital",
+      "Shareholder Equity",
       "Retained Earnings",
-      "Common Stock",
-      "Preferred Stock",
-      "Treasury Stock",
-      "Additional Paid-in Capital",
-      "Accumulated Other Comprehensive Income"
+      "Drawings",
+      "Owner's Contribution",
+      "Owner's Withdrawal"
     ],
-    Revenue: [
-      "Operating Revenue",
-      "Non-operating Revenue",
-      "Service Revenue",
-      "Interest Revenue",
-      "Rental Revenue",
-      "Dividend Revenue",
-      "Other Revenue"
+    "Income / Revenue": [
+      "Sales",
+      "Service Income",
+      "Interest Income",
+      "Commission Income",
+      "Rental Income",
+      "Discounts Received",
+      "Other Income",
+      "Export Sales"
     ],
     Expenses: [
-      "Cost of Sales",
-      "Operating Expenses",
-      "Administrative Expenses",
-      "Selling Expenses",
-      "Financial Expenses",
-      "Interest Expense",
-      "Depreciation Expense",
-      "Amortization Expense",
-      "Tax Expense",
-      "Other Expenses"
+      "Rent",
+      "Salaries & Wages",
+      "Utilities",
+      "Office Expenses",
+      "Repairs & Maintenance",
+      "Marketing & Advertising",
+      "Travel Expense",
+      "Telephone & Internet",
+      "Professional Fees",
+      "Printing & Stationery",
+      "Bank Charges",
+      "Depreciation",
+      "GST Expenses (non-creditable)",
+      "Transportation Charges",
+      "Insurance"
     ]
   };
 
@@ -118,7 +139,7 @@ const GeneralLedger = () => {
       const newAccount = {
         id: accounts.length + 1,
         name: accountData.name,
-        code: `${accountData.category === 'Assets' ? '1' : accountData.category === 'Liabilities' ? '2' : accountData.category === 'Equity' ? '3' : accountData.category === 'Revenue' ? '4' : '5'}${String(accounts.length + 1).padStart(3, '0')}`,
+        code: `${accountData.category === 'Assets' ? '1' : accountData.category === 'Liabilities' ? '2' : accountData.category === 'Equity' ? '3' : accountData.category === 'Income / Revenue' ? '4' : '5'}${String(accounts.length + 1).padStart(3, '0')}`,
         balance: `₹${accountData.openingBalance || '0'}`,
         type: accountData.type,
         category: accountData.category
@@ -147,13 +168,13 @@ const GeneralLedger = () => {
   const assetsData = accounts.filter(acc => acc.category === 'Assets');
   const liabilitiesData = accounts.filter(acc => acc.category === 'Liabilities');
   const equityData = accounts.filter(acc => acc.category === 'Equity');
-  const revenueData = accounts.filter(acc => acc.category === 'Revenue');
+  const revenueData = accounts.filter(acc => acc.category === 'Income / Revenue');
   const expensesData = accounts.filter(acc => acc.category === 'Expenses');
 
   const trialBalanceData = accounts.map(account => ({
     ...account,
     debit: ['Assets', 'Expenses'].includes(account.category) ? account.balance : '-',
-    credit: ['Liabilities', 'Equity', 'Revenue'].includes(account.category) ? account.balance : '-'
+    credit: ['Liabilities', 'Equity', 'Income / Revenue'].includes(account.category) ? account.balance : '-'
   }));
 
   const AccountTable = ({ data, title }: { data: any[], title: string }) => (
@@ -234,7 +255,7 @@ const GeneralLedger = () => {
                     <SelectItem value="Assets">Assets</SelectItem>
                     <SelectItem value="Liabilities">Liabilities</SelectItem>
                     <SelectItem value="Equity">Equity</SelectItem>
-                    <SelectItem value="Revenue">Revenue</SelectItem>
+                    <SelectItem value="Income / Revenue">Income / Revenue</SelectItem>
                     <SelectItem value="Expenses">Expenses</SelectItem>
                   </SelectContent>
                 </Select>
