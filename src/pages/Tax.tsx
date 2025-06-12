@@ -10,7 +10,10 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tag, Plus, Calculator, FileText, TrendingUp, AlertCircle } from "lucide-react";
+import TDSManagement from "@/components/tax/TDSManagement";
+import TCSManagement from "@/components/tax/TCSManagement";
 
 const Tax = () => {
   const [isTaxRateDialogOpen, setIsTaxRateDialogOpen] = useState(false);
@@ -106,6 +109,7 @@ const Tax = () => {
         </Dialog>
       </div>
 
+      {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="p-6">
@@ -156,214 +160,233 @@ const Tax = () => {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle>Tax Rates Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">Configure tax rates for different products and services.</p>
-            <div className="space-y-2">
-              <Dialog open={isTaxRatesDialogOpen} onOpenChange={setIsTaxRatesDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">Manage Tax Rates</Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl">
-                  <DialogHeader>
-                    <DialogTitle>Tax Rates Management</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h4 className="font-medium">Current Tax Rates</h4>
-                      <Button size="sm" onClick={() => setIsTaxRateDialogOpen(true)}>
-                        Add New Rate
-                      </Button>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full">
-                        <thead>
-                          <tr className="border-b">
-                            <th className="text-left p-4">Tax Name</th>
-                            <th className="text-left p-4">Rate (%)</th>
-                            <th className="text-left p-4">Type</th>
-                            <th className="text-left p-4">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr className="border-b hover:bg-gray-50">
-                            <td className="p-4">Standard GST</td>
-                            <td className="p-4">18%</td>
-                            <td className="p-4">GST</td>
-                            <td className="p-4">
-                              <Button variant="outline" size="sm">Edit</Button>
-                            </td>
-                          </tr>
-                          <tr className="border-b hover:bg-gray-50">
-                            <td className="p-4">Reduced GST</td>
-                            <td className="p-4">5%</td>
-                            <td className="p-4">GST</td>
-                            <td className="p-4">
-                              <Button variant="outline" size="sm">Edit</Button>
-                            </td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+      {/* Main Tax Management Tabs */}
+      <Tabs defaultValue="gst" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="gst">GST Management</TabsTrigger>
+          <TabsTrigger value="tds">TDS Management</TabsTrigger>
+          <TabsTrigger value="tcs">TCS Management</TabsTrigger>
+        </TabsList>
 
-              <Dialog open={isGSTSettingsDialogOpen} onOpenChange={setIsGSTSettingsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">GST Settings</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>GST Settings</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium">GSTIN</label>
-                      <Input placeholder="Enter GSTIN" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">State</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select state" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="maharashtra">Maharashtra</SelectItem>
-                          <SelectItem value="delhi">Delhi</SelectItem>
-                          <SelectItem value="karnataka">Karnataka</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Business Type</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select business type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="regular">Regular</SelectItem>
-                          <SelectItem value="composition">Composition</SelectItem>
-                          <SelectItem value="unregistered">Unregistered</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <Button className="w-full">Save Settings</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
+        <TabsContent value="gst" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle>Tax Rates Configuration</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">Configure tax rates for different products and services.</p>
+                <div className="space-y-2">
+                  <Dialog open={isTaxRatesDialogOpen} onOpenChange={setIsTaxRatesDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">Manage Tax Rates</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Tax Rates Management</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="flex justify-between items-center">
+                          <h4 className="font-medium">Current Tax Rates</h4>
+                          <Button size="sm" onClick={() => setIsTaxRateDialogOpen(true)}>
+                            Add New Rate
+                          </Button>
+                        </div>
+                        <div className="overflow-x-auto">
+                          <table className="w-full">
+                            <thead>
+                              <tr className="border-b">
+                                <th className="text-left p-4">Tax Name</th>
+                                <th className="text-left p-4">Rate (%)</th>
+                                <th className="text-left p-4">Type</th>
+                                <th className="text-left p-4">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr className="border-b hover:bg-gray-50">
+                                <td className="p-4">Standard GST</td>
+                                <td className="p-4">18%</td>
+                                <td className="p-4">GST</td>
+                                <td className="p-4">
+                                  <Button variant="outline" size="sm">Edit</Button>
+                                </td>
+                              </tr>
+                              <tr className="border-b hover:bg-gray-50">
+                                <td className="p-4">Reduced GST</td>
+                                <td className="p-4">5%</td>
+                                <td className="p-4">GST</td>
+                                <td className="p-4">
+                                  <Button variant="outline" size="sm">Edit</Button>
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
 
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <CardTitle>Tax Reports & Filing</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600 mb-4">Generate tax reports and file returns.</p>
-            <div className="space-y-2">
-              <Dialog open={isTaxReportsDialogOpen} onOpenChange={setIsTaxReportsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">View Tax Reports</Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-4xl">
-                  <DialogHeader>
-                    <DialogTitle>Tax Reports</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className="text-sm font-medium">Report Type</label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select report" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="gstr1">GSTR-1</SelectItem>
-                            <SelectItem value="gstr3b">GSTR-3B</SelectItem>
-                            <SelectItem value="gstr9">GSTR-9</SelectItem>
-                          </SelectContent>
-                        </Select>
+                  <Dialog open={isGSTSettingsDialogOpen} onOpenChange={setIsGSTSettingsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">GST Settings</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>GST Settings</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium">GSTIN</label>
+                          <Input placeholder="Enter GSTIN" />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">State</label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select state" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="maharashtra">Maharashtra</SelectItem>
+                              <SelectItem value="delhi">Delhi</SelectItem>
+                              <SelectItem value="karnataka">Karnataka</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Business Type</label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select business type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="regular">Regular</SelectItem>
+                              <SelectItem value="composition">Composition</SelectItem>
+                              <SelectItem value="unregistered">Unregistered</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Button className="w-full">Save Settings</Button>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium">Period</label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select period" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="monthly">Monthly</SelectItem>
-                            <SelectItem value="quarterly">Quarterly</SelectItem>
-                            <SelectItem value="annual">Annual</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium">Year</label>
-                        <Select>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select year" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="2024">2024</SelectItem>
-                            <SelectItem value="2023">2023</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <Button className="w-full">Generate Report</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
 
-              <Dialog open={isFileReturnsDialogOpen} onOpenChange={setIsFileReturnsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button variant="outline" className="w-full">File Returns</Button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>File Tax Returns</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-sm font-medium">Return Type</label>
-                      <Select>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select return type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="gstr1">GSTR-1</SelectItem>
-                          <SelectItem value="gstr3b">GSTR-3B</SelectItem>
-                          <SelectItem value="gstr9">GSTR-9</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Filing Period</label>
-                      <Input type="month" />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium">Due Date</label>
-                      <Input type="date" />
-                    </div>
-                    <div className="bg-yellow-50 p-4 rounded">
-                      <p className="text-sm text-yellow-800">
-                        Please review all data before filing. Once filed, returns cannot be easily modified.
-                      </p>
-                    </div>
-                    <Button className="w-full">File Return</Button>
-                  </div>
-                </DialogContent>
-              </Dialog>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader>
+                <CardTitle>Tax Reports & Filing</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600 mb-4">Generate tax reports and file returns.</p>
+                <div className="space-y-2">
+                  <Dialog open={isTaxReportsDialogOpen} onOpenChange={setIsTaxReportsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">View Tax Reports</Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-4xl">
+                      <DialogHeader>
+                        <DialogTitle>Tax Reports</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-3 gap-4">
+                          <div>
+                            <label className="text-sm font-medium">Report Type</label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select report" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="gstr1">GSTR-1</SelectItem>
+                                <SelectItem value="gstr3b">GSTR-3B</SelectItem>
+                                <SelectItem value="gstr9">GSTR-9</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Period</label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select period" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="monthly">Monthly</SelectItem>
+                                <SelectItem value="quarterly">Quarterly</SelectItem>
+                                <SelectItem value="annual">Annual</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium">Year</label>
+                            <Select>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select year" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="2024">2024</SelectItem>
+                                <SelectItem value="2023">2023</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <Button className="w-full">Generate Report</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={isFileReturnsDialogOpen} onOpenChange={setIsFileReturnsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline" className="w-full">File Returns</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>File Tax Returns</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-sm font-medium">Return Type</label>
+                          <Select>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select return type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="gstr1">GSTR-1</SelectItem>
+                              <SelectItem value="gstr3b">GSTR-3B</SelectItem>
+                              <SelectItem value="gstr9">GSTR-9</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Filing Period</label>
+                          <Input type="month" />
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium">Due Date</label>
+                          <Input type="date" />
+                        </div>
+                        <div className="bg-yellow-50 p-4 rounded">
+                          <p className="text-sm text-yellow-800">
+                            Please review all data before filing. Once filed, returns cannot be easily modified.
+                          </p>
+                        </div>
+                        <Button className="w-full">File Return</Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="tds" className="space-y-6">
+          <TDSManagement />
+        </TabsContent>
+
+        <TabsContent value="tcs" className="space-y-6">
+          <TCSManagement />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
