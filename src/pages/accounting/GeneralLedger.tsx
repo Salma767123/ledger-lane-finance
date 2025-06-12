@@ -28,18 +28,26 @@ const GeneralLedger = () => {
   const [endDate, setEndDate] = useState<Date>();
   
   const [accounts, setAccounts] = useState([
-    { id: 1, name: "Cash in Hand", code: "1001", balance: "₹50,000", type: "Current Asset", category: "Assets" },
-    { id: 2, name: "Bank Account", code: "1002", balance: "₹2,50,000", type: "Current Asset", category: "Assets" },
-    { id: 3, name: "Accounts Receivable", code: "1101", balance: "₹1,20,000", type: "Current Asset", category: "Assets" },
-    { id: 4, name: "Equipment", code: "1501", balance: "₹5,00,000", type: "Fixed Asset", category: "Assets" },
-    { id: 5, name: "Accounts Payable", code: "2001", balance: "₹75,000", type: "Current Liability", category: "Liabilities" },
-    { id: 6, name: "Bank Loan", code: "2501", balance: "₹3,00,000", type: "Long-term Liability", category: "Liabilities" },
-    { id: 7, name: "Owner's Capital", code: "3001", balance: "₹5,00,000", type: "Equity", category: "Equity" },
-    { id: 8, name: "Retained Earnings", code: "3101", balance: "₹2,22,220", type: "Equity", category: "Equity" },
-    { id: 9, name: "Sales Revenue", code: "4001", balance: "₹8,45,670", type: "Revenue", category: "Revenue" },
-    { id: 10, name: "Office Rent", code: "5001", balance: "₹60,000", type: "Operating Expense", category: "Expenses" },
-    { id: 11, name: "Utilities", code: "5101", balance: "₹15,000", type: "Operating Expense", category: "Expenses" },
-    { id: 12, name: "Salaries", code: "5201", balance: "₹3,00,000", type: "Operating Expense", category: "Expenses" }
+    { id: 1, name: "Cash in Hand", code: "1001", balance: "₹50,000", type: "Current Assets", category: "Assets" },
+    { id: 2, name: "Bank Account - SBI", code: "1002", balance: "₹2,50,000", type: "Current Assets", category: "Assets" },
+    { id: 3, name: "Accounts Receivable", code: "1101", balance: "₹1,20,000", type: "Current Assets", category: "Assets" },
+    { id: 4, name: "Inventory", code: "1201", balance: "₹85,000", type: "Current Assets", category: "Assets" },
+    { id: 5, name: "Prepaid Insurance", code: "1301", balance: "₹15,000", type: "Current Assets", category: "Assets" },
+    { id: 6, name: "Office Equipment", code: "1501", balance: "₹3,00,000", type: "Fixed Assets", category: "Assets" },
+    { id: 7, name: "Buildings", code: "1502", balance: "₹15,00,000", type: "Fixed Assets", category: "Assets" },
+    { id: 8, name: "Accumulated Depreciation - Equipment", code: "1601", balance: "₹50,000", type: "Contra Assets", category: "Assets" },
+    { id: 9, name: "Accounts Payable", code: "2001", balance: "₹75,000", type: "Current Liabilities", category: "Liabilities" },
+    { id: 10, name: "Accrued Expenses", code: "2101", balance: "₹25,000", type: "Current Liabilities", category: "Liabilities" },
+    { id: 11, name: "Bank Loan", code: "2501", balance: "₹5,00,000", type: "Long-term Liabilities", category: "Liabilities" },
+    { id: 12, name: "Owner's Capital", code: "3001", balance: "₹10,00,000", type: "Owner's Equity", category: "Equity" },
+    { id: 13, name: "Retained Earnings", code: "3101", balance: "₹3,50,000", type: "Retained Earnings", category: "Equity" },
+    { id: 14, name: "Sales Revenue", code: "4001", balance: "₹12,50,000", type: "Operating Revenue", category: "Revenue" },
+    { id: 15, name: "Service Revenue", code: "4101", balance: "₹2,85,000", type: "Operating Revenue", category: "Revenue" },
+    { id: 16, name: "Cost of Goods Sold", code: "5001", balance: "₹7,50,000", type: "Cost of Sales", category: "Expenses" },
+    { id: 17, name: "Salaries Expense", code: "5201", balance: "₹4,20,000", type: "Operating Expenses", category: "Expenses" },
+    { id: 18, name: "Rent Expense", code: "5301", balance: "₹1,20,000", type: "Operating Expenses", category: "Expenses" },
+    { id: 19, name: "Utilities Expense", code: "5401", balance: "₹45,000", type: "Operating Expenses", category: "Expenses" },
+    { id: 20, name: "Depreciation Expense", code: "5501", balance: "₹75,000", type: "Operating Expenses", category: "Expenses" }
   ]);
   
   const [accountData, setAccountData] = useState({
@@ -53,51 +61,55 @@ const GeneralLedger = () => {
   const [ledgerTransactions] = useState([
     { id: 1, date: "2024-01-01", description: "Opening Balance", ref: "OB001", debit: "50,000", credit: "", balance: "50,000" },
     { id: 2, date: "2024-01-15", description: "Cash Sale", ref: "CS001", debit: "25,000", credit: "", balance: "75,000" },
-    { id: 3, date: "2024-01-20", description: "Office Expense", ref: "EXP001", debit: "", credit: "5,000", balance: "70,000" },
-    { id: 4, date: "2024-01-25", description: "Customer Payment", ref: "CP001", debit: "15,000", credit: "", balance: "85,000" }
+    { id: 3, date: "2024-01-20", description: "Office Rent Payment", ref: "EXP001", debit: "", credit: "10,000", balance: "65,000" },
+    { id: 4, date: "2024-01-25", description: "Customer Payment Received", ref: "CP001", debit: "15,000", credit: "", balance: "80,000" }
   ]);
 
   const accountTypes = {
     Assets: [
-      "Current Asset",
-      "Fixed Asset", 
-      "Intangible Asset",
-      "Investment",
-      "Inventory",
-      "Prepaid Expense",
-      "Other Asset"
+      "Current Assets",
+      "Fixed Assets", 
+      "Intangible Assets",
+      "Investments",
+      "Contra Assets",
+      "Other Assets"
     ],
     Liabilities: [
-      "Current Liability",
-      "Long-term Liability",
-      "Accrued Liability",
-      "Deferred Revenue",
-      "Other Liability"
+      "Current Liabilities",
+      "Long-term Liabilities",
+      "Contingent Liabilities",
+      "Other Liabilities"
     ],
     Equity: [
       "Owner's Equity",
+      "Partner's Capital",
       "Retained Earnings",
       "Common Stock",
       "Preferred Stock",
       "Treasury Stock",
-      "Additional Paid-in Capital"
+      "Additional Paid-in Capital",
+      "Accumulated Other Comprehensive Income"
     ],
     Revenue: [
-      "Sales Revenue",
+      "Operating Revenue",
+      "Non-operating Revenue",
       "Service Revenue",
       "Interest Revenue",
       "Rental Revenue",
+      "Dividend Revenue",
       "Other Revenue"
     ],
     Expenses: [
-      "Operating Expense",
-      "Cost of Goods Sold",
-      "Administrative Expense",
-      "Selling Expense",
+      "Cost of Sales",
+      "Operating Expenses",
+      "Administrative Expenses",
+      "Selling Expenses",
+      "Financial Expenses",
       "Interest Expense",
       "Depreciation Expense",
+      "Amortization Expense",
       "Tax Expense",
-      "Other Expense"
+      "Other Expenses"
     ]
   };
 
@@ -187,7 +199,7 @@ const GeneralLedger = () => {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
           <Book className="h-8 w-8 text-blue-600" />
-          General Ledger
+          Chart of Accounts
         </h1>
         <Dialog open={isAccountDialogOpen} onOpenChange={setIsAccountDialogOpen}>
           <DialogTrigger asChild>
@@ -300,7 +312,7 @@ const GeneralLedger = () => {
             <div className="flex items-center">
               <DollarSign className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Owner's Equity</p>
+                <p className="text-sm font-medium text-gray-600">Total Equity</p>
                 <p className="text-2xl font-bold text-gray-900">₹{equityData.reduce((sum, acc) => sum + parseInt(acc.balance.replace(/[₹,]/g, '')), 0).toLocaleString()}</p>
               </div>
             </div>
@@ -410,7 +422,6 @@ const GeneralLedger = () => {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Date Filter */}
             <div className="flex gap-4 items-center">
               <div className="space-y-2">
                 <label className="text-sm font-medium">From Date</label>
@@ -493,7 +504,7 @@ const GeneralLedger = () => {
             </div>
             <div className="flex justify-between items-center p-4 bg-gray-50 rounded">
               <span className="font-medium">Current Balance:</span>
-              <span className="text-xl font-bold">₹85,000</span>
+              <span className="text-xl font-bold">₹80,000</span>
             </div>
           </div>
         </DialogContent>

@@ -30,6 +30,7 @@ import VendorCredits from "./pages/purchase/VendorCredits";
 import DebitNotes from "./pages/purchase/DebitNotes";
 import GeneralLedger from "./pages/accounting/GeneralLedger";
 import JournalEntries from "./pages/accounting/JournalEntries";
+import BalanceSheet from "./pages/accounting/BalanceSheet";
 import Tax from "./pages/Tax";
 import Reports from "./pages/Reports";
 import Settings from "./pages/Settings";
@@ -83,6 +84,7 @@ const App = () => (
                   <Route path="/purchase/debit-notes" element={<DebitNotes />} />
                   <Route path="/accounting/general-ledger" element={<GeneralLedger />} />
                   <Route path="/accounting/journal-entries" element={<JournalEntries />} />
+                  <Route path="/accounting/balance-sheet" element={<BalanceSheet />} />
                   <Route path="/banking" element={<Banking />} />
                   <Route path="/tax" element={<Tax />} />
                   <Route path="/reports" element={<Reports />} />

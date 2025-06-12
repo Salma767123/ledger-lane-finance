@@ -1,4 +1,3 @@
-
 import {
   Sidebar,
   SidebarContent,
@@ -77,8 +76,9 @@ const menuItems = [
     title: "Accounting",
     icon: Book,
     items: [
-      { title: "General Ledger", url: "/accounting/general-ledger" },
+      { title: "Chart of Accounts", url: "/accounting/general-ledger" },
       { title: "Journal Entries", url: "/accounting/journal-entries" },
+      { title: "Balance Sheet", url: "/accounting/balance-sheet" },
     ],
   },
   {
